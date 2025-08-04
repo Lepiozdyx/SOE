@@ -1,0 +1,86 @@
+import SwiftUI
+
+struct ContentView: View {
+    @StateObject private var appViewModel = AppViewModel()
+    @ObservedObject private var settings = SettingsViewModel.shared
+    
+    @Environment(\.scenePhase) private var phase
+    
+    var body: some View {
+        ZStack {
+            switch appViewModel.currentScreen {
+            case .menu:
+                MenuView()
+                    .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
+                
+            case .levelSelect:
+                LevelSelectView()
+                    .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
+                
+            case .game:
+                GameView()
+                    .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
+                
+            case .settings:
+                SettingsView()
+                    .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
+                
+            case .shop:
+                ShopView()
+                    .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
+                
+            case .achievements:
+                AchievementView()
+                    .environmentObject(appViewModel)
+                
+            case .dailyReward:
+                DailyRewardView()
+                    .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
+                
+            case .upgrades:
+                UpgradesView()
+                    .environmentObject(appViewModel)
+                    .onAppear {
+                        OrientationManager.shared.lockLandscape()
+                    }
+            }
+        }
+        .onAppear {
+            if settings.isMusicOn {
+                settings.playMusic()
+            }
+        }
+        .onChange(of: phase) { state in
+            switch state {
+            case .active:
+                settings.playMusic()
+            case .background, .inactive:
+                settings.stopMusic()
+            @unknown default:
+                break
+            }
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+}
