@@ -16,7 +16,6 @@ enum AppScreen: CaseIterable {
 // Структура для элементов фона
 struct BackgroundItem: Identifiable, Codable, Equatable {
     let id: String
-    let name: String
     let imageName: String
     let price: Int
     
@@ -26,10 +25,10 @@ struct BackgroundItem: Identifiable, Codable, Equatable {
     
     // Доступные фоны в магазине
     static let availableBackgrounds: [BackgroundItem] = [
-        BackgroundItem(id: "default", name: "classic", imageName: "sunsetBg", price: 0),
-        BackgroundItem(id: "green", name: "clear weather", imageName: "greenBg", price: 100),
-        BackgroundItem(id: "winter", name: "winter", imageName: "winterBg", price: 200),
-        BackgroundItem(id: "night", name: "night", imageName: "nightBg", price: 300)
+        BackgroundItem(id: "bg1", imageName: "bg1", price: 0),
+        BackgroundItem(id: "bg2", imageName: "bg2", price: 100),
+        BackgroundItem(id: "bg3", imageName: "bg3", price: 200),
+        BackgroundItem(id: "bg4", imageName: "bg4", price: 300)
     ]
     
     static func getBackground(id: String) -> BackgroundItem {
@@ -37,31 +36,31 @@ struct BackgroundItem: Identifiable, Codable, Equatable {
     }
 }
 
-// Структура для скинов орла
-struct EagleSkinItem: Identifiable, Codable, Equatable {
+// Структура для скинов
+struct FishSkinItem: Identifiable, Codable, Equatable {
     let id: String
-    let name: String
     let imageName: String
     let price: Int
     
-    static func == (lhs: EagleSkinItem, rhs: EagleSkinItem) -> Bool {
+    static func == (lhs: FishSkinItem, rhs: FishSkinItem) -> Bool {
         return lhs.id == rhs.id
     }
     
-    // Доступные скины орла в магазине
-    static let availableSkins: [EagleSkinItem] = [
-        EagleSkinItem(id: "default", name: "eagle", imageName: "eagle11", price: 0),
-        EagleSkinItem(id: "hawk", name: "hawk", imageName: "hawk11", price: 100),
-        EagleSkinItem(id: "stormbeak", name: "stormbeak", imageName: "stormbeak11", price: 200),
-        EagleSkinItem(id: "skyfeather", name: "skyfeather", imageName: "skyfeather11", price: 300)
+    // Доступные скины в магазине
+    static let availableSkins: [FishSkinItem] = [
+        FishSkinItem(id: "default", imageName: "skin_default", price: 0),
+        FishSkinItem(id: "skin2", imageName: "skin2", price: 100),
+        FishSkinItem(id: "skin3", imageName: "skin3", price: 200),
+        FishSkinItem(id: "skin4", imageName: "skin4", price: 300)
     ]
     
-    static func getSkin(id: String) -> EagleSkinItem {
+    static func getSkin(id: String) -> FishSkinItem {
         return availableSkins.first { $0.id == id } ?? availableSkins[0]
     }
 }
 
-// Новая структура для типов улучшений скинов
+#warning("убрать из финальной версии приложения")
+// Структура для типов улучшений скинов
 struct EagleTypeUpgrade: Identifiable, Codable, Equatable {
     let id: String
     let name: String
@@ -90,8 +89,6 @@ struct EagleTypeUpgrade: Identifiable, Codable, Equatable {
 // Структура для достижений
 struct Achievement: Identifiable, Codable, Equatable {
     let id: String
-    let title: String
-    let description: String
     let imageName: String
     let reward: Int
     
@@ -99,41 +96,36 @@ struct Achievement: Identifiable, Codable, Equatable {
         return lhs.id == rhs.id
     }
     
-    // Список всех возможных достижений
+    // Список всех достижений
     static let allAchievements: [Achievement] = [
         Achievement(
-            id: "first_flight",
-            title: "first flight",
-            description: "complete your first flight",
-            imageName: "achi1",
+            id: "first_step",
+            imageName: "achieve_first_step",
             reward: 10
         ),
         Achievement(
-            id: "wind_speed",
-            title: "wind speed",
-            description: "use acceleration 50 times in races",
-            imageName: "achi2",
+            id: "grindilka_veteran",
+            imageName: "achieve_grindilka_veteran",
             reward: 10
         ),
         Achievement(
-            id: "celestial_champion",
-            title: "celestial champion",
-            description: "win three tournaments in a row",
-            imageName: "achi3",
+            id: "master_of_chaos",
+            imageName: "achieve_master_of_chaos",
             reward: 10
         ),
         Achievement(
-            id: "master_trainer",
-            title: "master trainer",
-            description: "train one eagle to max level",
-            imageName: "achi4",
+            id: "true_mutant",
+            imageName: "achieve_true_mutant",
             reward: 10
         ),
         Achievement(
-            id: "wings_collector",
-            title: "wings collector",
-            description: "collect all kinds of birds in the game",
-            imageName: "achi5",
+            id: "elusive",
+            imageName: "achieve_elusive",
+            reward: 10
+        ),
+        Achievement(
+            id: "adaptation_champion",
+            imageName: "achieve_adaptation_champion",
             reward: 10
         )
     ]

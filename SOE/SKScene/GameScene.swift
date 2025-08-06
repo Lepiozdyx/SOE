@@ -1,36 +1,30 @@
 import SpriteKit
 import SwiftUI
 
-// MARK: - Протокол делегата игровой сцены
 protocol GameSceneDelegate: AnyObject {
-    // Вызывается при сборе монеты
     func didCollectCoin()
-    
-    // Вызывается при столкновении с препятствием
     func didCollideWithObstacle()
 }
 
-// MARK: - Категории физических объектов
 struct PhysicsCategory {
-    static let none      : UInt32 = 0
-    static let eagle     : UInt32 = 0x1 << 0    // 1
-    static let obstacle  : UInt32 = 0x1 << 1    // 2
-    static let coin      : UInt32 = 0x1 << 2    // 4
-    static let boundary  : UInt32 = 0x1 << 3    // 8
+    static let none: UInt32 = 0
+    static let fish: UInt32 = 0x1 << 0
+    static let shadow: UInt32 = 0x1 << 1
+    static let coin: UInt32 = 0x1 << 2
+    static let boundary: UInt32 = 0x1 << 3
 }
 
 // MARK: - GameScene
 class GameScene: SKScene, SKPhysicsContactDelegate {
-    
-    // MARK: - Свойства
+
     weak var gameDelegate: GameSceneDelegate?
     
     // Игровые ноды
-    private var eagle: SKSpriteNode!
+    private var fish: SKSpriteNode!
     private var backgroundA: SKSpriteNode!
     private var backgroundB: SKSpriteNode!
     
-    // Свойства для управления миганием орла
+    // Свойства для управления миганием
     private var flickerAction: SKAction?
     private var flickerRepeatAction: SKAction?
     
@@ -63,9 +57,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var obstacleSpawnInterval: TimeInterval
     private var obstacleMinSpeed: CGFloat
     private var obstacleMaxSpeed: CGFloat
-    
-    // Текстуры для анимации орла
-    private var eagleTextures: [SKTexture] = []
 
     // MARK: - Инициализация
     init(size: CGSize, backgroundId: String, skinId: String, typeId: String, level: Int, isTournament: Bool = false) {
@@ -99,30 +90,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // MARK: - Жизненный цикл сцены
-    
     override func didMove(to view: SKView) {
-        // Настройка физики сцены
         physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         physicsWorld.contactDelegate = self
         
-        // Настройка основных компонентов игры
         setupBackground()
-        setupEagle()
+        setupFish()
         setupBoundaries()
-        
-        // Подготовка текстур для анимации орла
-        prepareEagleAnimation()
-        
-        // Запуск игры
         startGame()
     }
     
     // MARK: - Настройка игры
-    
     private func setupBackground() {
         // Получаем текстуру фона
         let backgroundTexture = SKTexture(imageNamed: getBackgroundImageName())
         
+        #warning("тут нужен второй фон?")
         // Создаем два одинаковых фоновых изображения для бесконечного скроллинга
         backgroundA = SKSpriteNode(texture: backgroundTexture)
         backgroundB = SKSpriteNode(texture: backgroundTexture)
@@ -145,36 +128,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(backgroundB)
     }
     
-    private func setupEagle() {
-        // Создаем орла с первой текстурой из набора
-        let eagleTexture = SKTexture(imageNamed: getEagleImageName(frame: 1))
-        eagle = SKSpriteNode(texture: eagleTexture)
+    private func setupFish() {
+        // Создаем шарик с текстурой
+        let fishTexture = SKTexture(imageNamed: "skin_default")
+        fish = SKSpriteNode(texture: fishTexture)
         
-        // Устанавливаем размер орла
-        eagle.size = GameConstants.eagleSize
+        fish.size = GameConstants.fishSize
         
-        // Позиционируем орла на экране
-        let eagleX = size.width * GameConstants.eagleHorizontalPosition
-        let eagleY = size.height * GameConstants.eagleInitialY
-        eagle.position = CGPoint(x: eagleX, y: eagleY)
+        let fishX = size.width * GameConstants.fishHorizontalPosition
+        let fishY = size.height * GameConstants.fishInitialY
+        fish.position = CGPoint(x: fishX, y: fishY)
         
-        // Настройка физического тела орла
         let smallerSize = CGSize(
-            width: eagle.size.width * GameConstants.eaglePhysicsBodyScale,
-            height: eagle.size.height * GameConstants.eaglePhysicsBodyScale
+            width: fish.size.width * GameConstants.fishPhysicsBodyScale,
+            height: fish.size.height * GameConstants.fishPhysicsBodyScale
         )
         
-        eagle.physicsBody = SKPhysicsBody(rectangleOf: smallerSize)
-        eagle.physicsBody?.isDynamic = true
-        eagle.physicsBody?.categoryBitMask = PhysicsCategory.eagle
-        eagle.physicsBody?.contactTestBitMask = PhysicsCategory.obstacle | PhysicsCategory.coin
-        eagle.physicsBody?.collisionBitMask = PhysicsCategory.boundary
-        eagle.physicsBody?.usesPreciseCollisionDetection = true
+        fish.physicsBody = SKPhysicsBody(rectangleOf: smallerSize)
+        fish.physicsBody?.isDynamic = true
+        fish.physicsBody?.categoryBitMask = PhysicsCategory.fish
+        fish.physicsBody?.contactTestBitMask = PhysicsCategory.shadow | PhysicsCategory.coin
+        fish.physicsBody?.collisionBitMask = PhysicsCategory.boundary
+        fish.physicsBody?.usesPreciseCollisionDetection = true
+        fish.zPosition = 5
         
-        // Установка Z-позиции, чтобы орел был впереди фона
-        eagle.zPosition = 5
-        
-        addChild(eagle)
+        addChild(fish)
     }
     
     private func setupBoundaries() {
@@ -189,22 +167,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(border)
     }
     
-    private func prepareEagleAnimation() {
-        // Подготавливаем текстуры для анимации полета орла
-        eagleTextures = [
-            SKTexture(imageNamed: getEagleImageName(frame: 1)),
-            SKTexture(imageNamed: getEagleImageName(frame: 2)),
-            SKTexture(imageNamed: getEagleImageName(frame: 3))
-        ]
-        
-        // Запускаем анимацию
-        let animation = SKAction.animate(with: eagleTextures, timePerFrame: 0.15)
-        let runForever = SKAction.repeatForever(animation)
-        eagle.run(runForever)
-    }
-    
     // MARK: - Управление игрой
-    
     func startGame() {
         isGamePaused = false
         lastUpdateTime = 0
@@ -218,7 +181,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func resumeGame() {
-        // Важно: проверяем, активна ли пауза перед её снятием
+        // Проверяем, активна ли пауза перед её снятием
         if isGamePaused {
             isGamePaused = false
             // Сбрасываем счётчик времени для корректного обновления
@@ -240,10 +203,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         coins.removeAll()
         
-        // Возвращаем орла в начальную позицию
-        let eagleX = size.width * GameConstants.eagleHorizontalPosition
-        let eagleY = size.height * GameConstants.eagleInitialY
-        eagle.position = CGPoint(x: eagleX, y: eagleY)
+        // Возвращаем шарик в начальную позицию
+        let eagleX = size.width * GameConstants.fishHorizontalPosition
+        let eagleY = size.height * GameConstants.fishInitialY
+        fish.position = CGPoint(x: eagleX, y: eagleY)
         
         // Сбрасываем скорость
         baseSpeed = obstacleMinSpeed // Используем скорость соответствующую текущему уровню
@@ -264,10 +227,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         accelerationEnabled = enabled
     }
     
-    // методы для создания эффекта мигания орла
-    func makeEagleFlicker() {
+    // методы для создания эффекта мигания
+    func makeFishFlicker() {
         // Останавливаем предыдущую анимацию мигания, если она была
-        eagle.removeAction(forKey: "flickerAction")
+        fish.removeAction(forKey: "flickerAction")
         
         // Создаем последовательность действий для мигания
         let fadeOut = SKAction.fadeAlpha(to: 0.1, duration: 0.2)
@@ -275,19 +238,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let flickerSequence = SKAction.sequence([fadeOut, fadeIn])
         
         // Повторяем мигание
-        flickerRepeatAction = SKAction.repeat(flickerSequence, count: GameConstants.eagleFlickerCount)
+        flickerRepeatAction = SKAction.repeat(flickerSequence, count: GameConstants.fishFlickerCount)
         
         // Запускаем анимацию мигания
-        eagle.run(flickerRepeatAction!, withKey: "flickerAction")
+        fish.run(flickerRepeatAction!, withKey: "flickerAction")
     }
     
-    func stopEagleFlicker() {
-        eagle.removeAction(forKey: "flickerAction")
-        eagle.alpha = 1.0
+    func stopFishFlicker() {
+        fish.removeAction(forKey: "flickerAction")
+        fish.alpha = 1.0
     }
     
     // MARK: - Игровой цикл
-    
     override func update(_ currentTime: TimeInterval) {
         // Инициализация lastUpdateTime при первом вызове
         if lastUpdateTime == 0 {
@@ -375,22 +337,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func spawnObstacle() {
-        // Выбираем случайный тип препятствия
-        let obstacleType = ObstacleType.random()
+        // Выбираем тип препятствия
+//        let obstacleType = ObstacleType.random()
+        let obstacleType = ObstacleType.shadow
         
         // Создаем препятствие
         let texture = SKTexture(imageNamed: obstacleType.imageName)
         let obstacle = SKSpriteNode(texture: texture)
         
         // Устанавливаем размер в зависимости от типа
-        switch obstacleType {
-        case .cloud:
-            obstacle.size = GameConstants.ObstacleSizes.cloud
-        case .balloon:
-            obstacle.size = GameConstants.ObstacleSizes.balloon
-        case .zeppelin:
-            obstacle.size = GameConstants.ObstacleSizes.zeppelin
-        }
+//        switch obstacleType {
+//        case .shadow:
+//            obstacle.size = GameConstants.ObstacleSizes.shadow
+//        }
+        
+        obstacle.size = GameConstants.ObstacleSizes.shadow
         
         // Случайная позиция по вертикали с отступами
         let minY = obstacle.size.height / 2 + 20 // Отступ снизу 20 пунктов
@@ -404,8 +365,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Настройка физического тела
         obstacle.physicsBody = SKPhysicsBody(rectangleOf: obstacle.size)
         obstacle.physicsBody?.isDynamic = true
-        obstacle.physicsBody?.categoryBitMask = PhysicsCategory.obstacle
-        obstacle.physicsBody?.contactTestBitMask = PhysicsCategory.eagle
+        obstacle.physicsBody?.categoryBitMask = PhysicsCategory.shadow
+        obstacle.physicsBody?.contactTestBitMask = PhysicsCategory.fish
         obstacle.physicsBody?.collisionBitMask = PhysicsCategory.none
         
         // Добавляем препятствие на сцену и в массив
@@ -431,7 +392,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         coin.physicsBody = SKPhysicsBody(circleOfRadius: coin.size.width/2)
         coin.physicsBody?.isDynamic = true
         coin.physicsBody?.categoryBitMask = PhysicsCategory.coin
-        coin.physicsBody?.contactTestBitMask = PhysicsCategory.eagle
+        coin.physicsBody?.contactTestBitMask = PhysicsCategory.fish
         coin.physicsBody?.collisionBitMask = PhysicsCategory.none
         
         // Добавляем монету на сцену и в массив
@@ -469,13 +430,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         let collision = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
         
-        // Столкновение орла с препятствием
-        if collision == PhysicsCategory.eagle | PhysicsCategory.obstacle {
+        // Столкновение шарика с препятствием
+        if collision == PhysicsCategory.fish | PhysicsCategory.shadow {
             handleCollisionWithObstacle()
         }
         
-        // Столкновение орла с монетой
-        if collision == PhysicsCategory.eagle | PhysicsCategory.coin {
+        // Столкновение шарика с монетой
+        if collision == PhysicsCategory.fish | PhysicsCategory.coin {
             if let coin = contact.bodyA.categoryBitMask == PhysicsCategory.coin ?
                 contact.bodyA.node as? SKSpriteNode : contact.bodyB.node as? SKSpriteNode {
                 handleCollectionOfCoin(coin)
@@ -488,10 +449,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         gameDelegate?.didCollideWithObstacle()
     }
     
-    private func handleCollectionOfCoin(_ coin: SKSpriteNode) {
-        // Создаем эффект сбора монеты
-        createCoinCollectionEffect(at: coin.position)
-        
+    private func handleCollectionOfCoin(_ coin: SKSpriteNode) {   
         // Удаляем монету
         coin.removeFromParent()
         if let index = coins.firstIndex(of: coin) {
@@ -500,12 +458,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // Сообщаем о сборе монеты через делегат
         gameDelegate?.didCollectCoin()
-    }
-    
-    private func createCoinCollectionEffect(at position: CGPoint) {
-        // Создаем эффект сбора монеты
-        let collection = ParticleFactory.createCoinCollectionEffect(at: position)
-        addChild(collection)
     }
     
     // MARK: - Обработка касаний
@@ -517,15 +469,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Получаем новую Y-позицию для орла
         let newY = touchLocation.y
         
-        // Проверяем, чтобы орел не вышел за пределы экрана
-        let minY = eagle.size.height / 2
-        let maxY = size.height - eagle.size.height / 2
+        // Проверяем, чтобы шарик не вышел за пределы экрана
+        let minY = fish.size.height / 2
+        let maxY = size.height - fish.size.height / 2
         let clampedY = max(minY, min(maxY, newY))
         
-        // Перемещаем орла с анимацией
+        // Перемещаем шарик с анимацией
         let moveAction = SKAction.moveTo(y: clampedY, duration: GameConstants.defaultAnimationDuration)
         moveAction.timingMode = .easeOut
-        eagle.run(moveAction)
+        fish.run(moveAction)
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -535,37 +487,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Получаем новую Y-позицию для орла
         let newY = touchLocation.y
         
-        // Проверяем, чтобы орел не вышел за пределы экрана
-        let minY = eagle.size.height / 2
-        let maxY = size.height - eagle.size.height / 2
+        // Проверяем, чтобы шарик не вышел за пределы экрана
+        let minY = fish.size.height / 2
+        let maxY = size.height - fish.size.height / 2
         let clampedY = max(minY, min(maxY, newY))
         
-        // Перемещаем орла мгновенно
-        eagle.position.y = clampedY
+        // Перемещаем шарик мгновенно
+        fish.position.y = clampedY
     }
     
     // MARK: - Утилиты
-    
     private func getBackgroundImageName() -> String {
         // Получаем имя фонового изображения в зависимости от выбранного фона
         if let item = BackgroundItem.availableBackgrounds.first(where: { $0.id == backgroundId }) {
             return item.imageName
         }
-        return "sunsetBg" // Дефолтный фон
-    }
-    
-    private func getEagleImageName(frame: Int) -> String {
-        // Получаем имя изображения орла в зависимости от выбранного скина, типа и кадра анимации
-        let frameNumber = frame
-        
-        // Извлекаем тип из skinId (default) или используем явное значение для других скинов
-        if skinId == "default" {
-            // Получаем текущий тип из typeId, например "type2" -> "2"
-            let typeNumber = typeId.replacingOccurrences(of: "type", with: "")
-            return "eagle\(typeNumber)\(frameNumber)"
-        } else {
-            let typeNumber = typeId.replacingOccurrences(of: "type", with: "")
-            return "\(skinId)\(typeNumber)\(frameNumber)"
-        }
+        return "bg1" // Дефолтный фон
     }
 }

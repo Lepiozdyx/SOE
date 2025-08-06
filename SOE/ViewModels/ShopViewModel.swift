@@ -8,7 +8,7 @@ class ShopViewModel: ObservableObject {
     }
     
     @Published var currentTab: ShopTab = .skins
-    @Published var availableSkins: [EagleSkinItem] = []
+    @Published var availableSkins: [FishSkinItem] = []
     @Published var availableBackgrounds: [BackgroundItem] = []
     
     weak var appViewModel: AppViewModel?
@@ -18,7 +18,7 @@ class ShopViewModel: ObservableObject {
     }
     
     private func loadItems() {
-        availableSkins = EagleSkinItem.availableSkins
+        availableSkins = FishSkinItem.availableSkins
         availableBackgrounds = BackgroundItem.availableBackgrounds
     }
     
@@ -36,7 +36,7 @@ class ShopViewModel: ObservableObject {
     
     func purchaseSkin(_ id: String) {
         guard let appViewModel = appViewModel,
-              let skin = EagleSkinItem.availableSkins.first(where: { $0.id == id }),
+              let skin = FishSkinItem.availableSkins.first(where: { $0.id == id }),
               appViewModel.coins >= skin.price else { return }
         
         appViewModel.addCoins(-skin.price)

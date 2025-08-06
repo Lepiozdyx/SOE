@@ -28,12 +28,6 @@ struct MenuView: View {
                     
                     Spacer()
                     
-                    Image(.logoicon)
-                        .resizable()
-                        .frame(width: 90, height: 90)
-                    
-                    Spacer()
-                    
                     // Coins counter
                     CoinBoardView(
                         coins: appViewModel.coins,

@@ -151,15 +151,6 @@ struct AchievementItemView: View {
                         }
                     }
                 }
-            
-            // Achievement information
-            VStack(spacing: 5) {
-                Text(achievement.title)
-                    .gFont(18)
-                
-                Text(achievement.description)
-                    .gFont(12)
-            }
         }
     }
 }

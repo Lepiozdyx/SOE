@@ -7,7 +7,6 @@ struct SOEApp: App {
     var body: some Scene {
         WindowGroup {
             SourceView()
-                .preferredColorScheme(.light)
         }
     }
 }

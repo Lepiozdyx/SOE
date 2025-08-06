@@ -71,7 +71,7 @@ class AchievementViewModel: ObservableObject {
         }
         
         // "Коллекционер крыльев" (wings_collector) - собрать все виды птиц
-        let allSkinsPurchased = gameState.purchasedSkins.count >= EagleSkinItem.availableSkins.count
+        let allSkinsPurchased = gameState.purchasedSkins.count >= FishSkinItem.availableSkins.count
         if allSkinsPurchased {
             unlockAchievement("wings_collector")
         }

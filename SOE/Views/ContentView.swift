@@ -12,37 +12,22 @@ struct ContentView: View {
             case .menu:
                 MenuView()
                     .environmentObject(appViewModel)
-                    .onAppear {
-                        OrientationManager.shared.lockLandscape()
-                    }
                 
             case .levelSelect:
                 LevelSelectView()
                     .environmentObject(appViewModel)
-                    .onAppear {
-                        OrientationManager.shared.lockLandscape()
-                    }
                 
             case .game:
                 GameView()
                     .environmentObject(appViewModel)
-                    .onAppear {
-                        OrientationManager.shared.lockLandscape()
-                    }
                 
             case .settings:
                 SettingsView()
                     .environmentObject(appViewModel)
-                    .onAppear {
-                        OrientationManager.shared.lockLandscape()
-                    }
                 
             case .shop:
                 ShopView()
                     .environmentObject(appViewModel)
-                    .onAppear {
-                        OrientationManager.shared.lockLandscape()
-                    }
                 
             case .achievements:
                 AchievementView()
@@ -51,16 +36,10 @@ struct ContentView: View {
             case .dailyReward:
                 DailyRewardView()
                     .environmentObject(appViewModel)
-                    .onAppear {
-                        OrientationManager.shared.lockLandscape()
-                    }
                 
             case .upgrades:
                 UpgradesView()
                     .environmentObject(appViewModel)
-                    .onAppear {
-                        OrientationManager.shared.lockLandscape()
-                    }
             }
         }
         .onAppear {

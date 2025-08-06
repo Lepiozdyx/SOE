@@ -51,7 +51,7 @@ struct ShopView: View {
                                 ShopItemView(
                                     itemType: .skin,
                                     imageName: skin.imageName,
-                                    name: skin.name,
+                                    name: skin.id,
                                     price: skin.price,
                                     isPurchased: viewModel.isSkinPurchased(skin.id),
                                     isSelected: viewModel.isSkinSelected(skin.id),
@@ -69,7 +69,7 @@ struct ShopView: View {
                                 ShopItemView(
                                     itemType: .background,
                                     imageName: background.imageName,
-                                    name: background.name,
+                                    name: background.id,
                                     price: background.price,
                                     isPurchased: viewModel.isBackgroundPurchased(background.id),
                                     isSelected: viewModel.isBackgroundSelected(background.id),

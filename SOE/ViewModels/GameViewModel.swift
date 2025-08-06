@@ -207,13 +207,13 @@ class GameViewModel: ObservableObject {
         
         isInvulnerable = true
         // Делаем орла мигающим
-        gameScene?.makeEagleFlicker()
+        gameScene?.makeFishFlicker()
         
         invulnerabilityTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { [weak self] _ in
             guard let self = self else { return }
             self.isInvulnerable = false
             // Останавливаем мигание орла
-            self.gameScene?.stopEagleFlicker()
+            self.gameScene?.stopFishFlicker()
             
             DispatchQueue.main.async {
                 self.objectWillChange.send()
