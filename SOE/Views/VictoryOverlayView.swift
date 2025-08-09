@@ -14,33 +14,22 @@ struct VictoryOverlayView: View {
                 .edgesIgnoringSafeArea(.all)
             
             // Основной контент
-            VStack(spacing: 15) {
-                Text("VICTORY!")
-                    .gFont(36)
-                    .padding(.vertical)
-                    .padding(.horizontal, 30)
-                    .background(
-                        Image(.labelFrame)
-                            .resizable()
-                    )
-                    .shadow(color: .green.opacity(0.7), radius: 10)
-                
-                // Анимация получения монет
+            VStack(spacing: 20) {
                 HStack {
-                    Text("+50")
-                        .gFont(26)
+                    Text("Prize: 100")
+                        .gFont(22)
                     
                     Image(.coin)
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 35)
+                        .frame(height: 25)
                 }
                 .scaleEffect(showCoinsAnimation ? 1.3 : 1.0)
                 .animation(.spring(response: 0.5, dampingFraction: 0.5), value: showCoinsAnimation)
                 
                 // Кнопки
-                VStack(spacing: 15) {
-                    ActionButtonView(title: "Next Level", fontSize: 22, width: 250, height: 60) {
+                VStack(spacing: 8) {
+                    ActionButtonView(title: "Next Level", fontSize: 22, width: 200, height: 55) {
                         // Предотвращаем многократное нажатие
                         guard !navigatingToNextLevel else { return }
                         navigatingToNextLevel = true
@@ -52,7 +41,7 @@ struct VictoryOverlayView: View {
                     }
                     .opacity(navigatingToNextLevel ? 0.7 : 1.0)
                     
-                    ActionButtonView(title: "Menu", fontSize: 22, width: 250, height: 60) {
+                    ActionButtonView(title: "Menu", fontSize: 22, width: 200, height: 55) {
                         // Предотвращаем многократное нажатие
                         guard !navigatingToNextLevel else { return }
                         navigatingToNextLevel = true
@@ -65,10 +54,23 @@ struct VictoryOverlayView: View {
                     .opacity(navigatingToNextLevel ? 0.7 : 1.0)
                 }
             }
-            .padding(30)
+            .padding(.vertical, 50)
+            .padding(.horizontal, 50)
             .background(
-                Image(.mainFrame)
+                Image(.frameBubble)
                     .resizable()
+                    .overlay(alignment: .top) {
+                        Image(.labelFrame)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 250)
+                            .overlay {
+                                Text("Completed")
+                                    .gFont(24)
+                            }
+                            .offset(y: -30)
+                            .shadow(color: .green.opacity(0.7), radius: 10)
+                    }
             )
             .scaleEffect(overlayScale)
             .opacity(overlayOpacity)

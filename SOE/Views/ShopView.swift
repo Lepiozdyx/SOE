@@ -9,7 +9,7 @@ struct ShopView: View {
     @State private var contentOpacity: Double = 0
     @State private var contentOffset: CGFloat = 20
     
-    private let columns = Array(repeating: GridItem(.flexible()), count: 4)
+    private let columns = Array(repeating: GridItem(.flexible()), count: 2)
     
     var body: some View {
         ZStack {
@@ -17,95 +17,97 @@ struct ShopView: View {
             BgView()
             
             VStack {
-                // Top bar with back button and coins counter
-                HStack {
-                    CircleButtonView(iconName: .btnArrow, height: 60) {
+                HStack(alignment: .top) {
+                    CircleButtonView(iconName: .home, height: 60) {
                         appViewModel.navigateTo(.menu)
                     }
                     
                     Spacer()
                     
-                    // Coins counter
                     CoinBoardView(
                         coins: appViewModel.coins,
                         width: 150,
-                        height: 60
+                        height: 55
                     )
                 }
                 
                 Spacer()
+            }
+            .padding()
+            
+            HStack {
+                Image(.frameShop)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 260)
                 
-                // Tab selector between shop categories
-                TabSelectorView(
-                    selectedTab: $viewModel.currentTab
-                )
-                .opacity(contentOpacity)
-                .offset(y: contentOffset)
-                
-                // Shop items grid
                 VStack {
-                    // Shop items based on selected category
-                    LazyVGrid(columns: columns, spacing: 20) {
-                        if viewModel.currentTab == .skins {
-                            ForEach(viewModel.availableSkins) { skin in
-                                ShopItemView(
-                                    itemType: .skin,
-                                    imageName: skin.imageName,
-                                    name: skin.id,
-                                    price: skin.price,
-                                    isPurchased: viewModel.isSkinPurchased(skin.id),
-                                    isSelected: viewModel.isSkinSelected(skin.id),
-                                    canAfford: appViewModel.coins >= skin.price,
-                                    onBuy: {
-                                        viewModel.purchaseSkin(skin.id)
-                                    },
-                                    onSelect: {
-                                        viewModel.selectSkin(skin.id)
-                                    }
-                                )
-                            }
-                        } else {
-                            ForEach(viewModel.availableBackgrounds) { background in
-                                ShopItemView(
-                                    itemType: .background,
-                                    imageName: background.imageName,
-                                    name: background.id,
-                                    price: background.price,
-                                    isPurchased: viewModel.isBackgroundPurchased(background.id),
-                                    isSelected: viewModel.isBackgroundSelected(background.id),
-                                    canAfford: appViewModel.coins >= background.price,
-                                    onBuy: {
-                                        viewModel.purchaseBackground(background.id)
-                                    },
-                                    onSelect: {
-                                        viewModel.selectBackground(background.id)
-                                    }
-                                )
+                    // Tab selector
+                    TabSelectorView(
+                        selectedTab: $viewModel.currentTab
+                    )
+                    .opacity(contentOpacity)
+                    .offset(y: contentOffset)
+                    
+                    // Shop items grid
+                    VStack {
+                        LazyVGrid(columns: columns, spacing: 10) {
+                            if viewModel.currentTab == .skins {
+                                ForEach(viewModel.availableSkins) { skin in
+                                    ShopItemView(
+                                        itemType: .skin,
+                                        imageName: skin.imageName,
+                                        name: skin.id,
+                                        price: skin.price,
+                                        isPurchased: viewModel.isSkinPurchased(skin.id),
+                                        isSelected: viewModel.isSkinSelected(skin.id),
+                                        canAfford: appViewModel.coins >= skin.price,
+                                        onBuy: {
+                                            viewModel.purchaseSkin(skin.id)
+                                        },
+                                        onSelect: {
+                                            viewModel.selectSkin(skin.id)
+                                        }
+                                    )
+                                }
+                            } else {
+                                ForEach(viewModel.availableBackgrounds) { background in
+                                    ShopItemView(
+                                        itemType: .background,
+                                        imageName: background.imageName,
+                                        name: background.id,
+                                        price: background.price,
+                                        isPurchased: viewModel.isBackgroundPurchased(background.id),
+                                        isSelected: viewModel.isBackgroundSelected(background.id),
+                                        canAfford: appViewModel.coins >= background.price,
+                                        onBuy: {
+                                            viewModel.purchaseBackground(background.id)
+                                        },
+                                        onSelect: {
+                                            viewModel.selectBackground(background.id)
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
+                    .frame(maxWidth: 200)
+                    .opacity(contentOpacity)
+                    .offset(y: contentOffset)
                 }
-                .frame(maxWidth: 600)
-                .opacity(contentOpacity)
-                .offset(y: contentOffset)
-                
-                Spacer()
             }
-            .padding()
-            .onAppear {
-                // Initialize viewModel on appear
-                viewModel.appViewModel = appViewModel
-                
-                // Start animations with different delays
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
-                    titleScale = 1.0
-                    titleOpacity = 1.0
-                }
-                
-                withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
-                    contentOpacity = 1.0
-                    contentOffset = 0
-                }
+        }
+        .onAppear {
+            viewModel.appViewModel = appViewModel
+            
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
+                titleScale = 1.0
+                titleOpacity = 1.0
+            }
+            
+            withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
+                contentOpacity = 1.0
+                contentOffset = 0
             }
         }
     }
@@ -118,7 +120,7 @@ struct TabSelectorView: View {
     var body: some View {
         HStack(spacing: 20) {
             TabButton(
-                title: "Skins",
+                title: "Skin",
                 isSelected: selectedTab == .skins,
                 action: {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -128,7 +130,7 @@ struct TabSelectorView: View {
             )
             
             TabButton(
-                title: "Locations",
+                title: "BG",
                 isSelected: selectedTab == .backgrounds,
                 action: {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -148,14 +150,14 @@ struct TabButton: View {
     
     var body: some View {
         Button(action: action) {
-            Image(.buttonM)
+            Image(.btnAction)
                 .resizable()
-                .frame(width: 120, height: 50)
+                .frame(width: 100, height: 40)
                 .overlay(
                     Text(title)
                         .gFont(16)
                 )
-                .scaleEffect(isSelected ? 1.05 : 0.8)
+                .scaleEffect(isSelected ? 1 : 0.85)
         }
     }
 }
@@ -185,82 +187,65 @@ struct ShopItemView: View {
             Image(getPreviewImageName())
                 .resizable()
                 .scaledToFit()
-                .frame(maxWidth: 110, maxHeight: 150)
-                .scaleEffect(isAnimating ? 1.05 : 1.0)
-                .animation(
-                    Animation.easeInOut(duration: 1.5)
-                        .repeatForever(autoreverses: true),
-                    value: isAnimating
-                )
-                .onAppear {
-                    isAnimating = true
-                }
+                .frame(maxHeight: 70)
                 .overlay(alignment: .bottom) {
-                    // Item name
-                    Text(name)
-                        .gFont(14)
-                        .padding(.bottom)
-                }
-            
-            // Buy/select button
-            Button {
-                if isPurchased {
-                    if !isSelected {
-                        onSelect()
-                    }
-                } else if canAfford {
-                    onBuy()
-                }
-            } label: {
-                Image(.buttonM)
-                    .resizable()
-                    .frame(maxWidth: 110, maxHeight: 36)
-                    .overlay {
+                    // Buy/select button
+                    Button {
                         if isPurchased {
-                            Text(isSelected ? "Selected" : "Select")
-                                .gFont(12)
-                        } else {
-                            HStack(spacing: 4) {
-                                Image("coin")
-                                    .resizable()
-                                    .frame(width: 20, height: 20)
-                                
-                                Text("\(price)")
-                                    .gFont(12)
+                            if !isSelected {
+                                onSelect()
                             }
+                        } else if canAfford {
+                            onBuy()
+                        }
+                    } label: {
+                        if isPurchased {
+                            Image(.buttonM)
+                                .resizable()
+                                .frame(maxWidth: 100, maxHeight: 35)
+                                .overlay {
+                                    Text(isSelected ? "Selected" : "Select")
+                                        .gFont(12)
+                                }
+                        } else {
+                            Image(.btnBy)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 50)
                         }
                     }
-            }
-            .disabled((isPurchased && isSelected) || (!isPurchased && !canAfford))
-            .opacity((isPurchased && isSelected) || (!isPurchased && !canAfford) ? 0.6 : 1)
+                    .disabled((isPurchased && isSelected) || (!isPurchased && !canAfford))
+                    .opacity((isPurchased && isSelected) || (!isPurchased && !canAfford) ? 0.6 : 1)
+                }
         }
     }
     
     private func getPreviewImageName() -> String {
         switch itemType {
         case .skin:
-            if imageName.contains("eagle") {
-                return "eaglePreview"
-            } else if imageName.contains("hawk") {
-                return "hawkPreview"
-            } else if imageName.contains("stormbeak") {
-                return "stormbeakPreview"
-            } else if imageName.contains("skyfeather") {
-                return "skyfeatherPreview"
+            if imageName.contains("default") {
+                return "skin_default"
+            } else if imageName.contains("skin2") {
+                return "skin2"
+            } else if imageName.contains("skin3") {
+                return "skin3"
+            } else if imageName.contains("skin4") {
+                return "skin4"
             } else {
-                return "eaglePreview"
+                return "skin_default"
             }
+            
         case .background:
-            if imageName.contains("sunset") {
-                return "sunsetPreview"
-            } else if imageName.contains("green") {
-                return "greenPreview"
-            } else if imageName.contains("winter") {
-                return "winterPreview"
-            } else if imageName.contains("night") {
-                return "nightPreview"
+            if imageName.contains("bg1") {
+                return "bg1Preview"
+            } else if imageName.contains("bg2") {
+                return "bg2Preview"
+            } else if imageName.contains("bg3") {
+                return "bg3Preview"
+            } else if imageName.contains("bg4") {
+                return "bg4Preview"
             } else {
-                return "sunsetPreview"
+                return "bg1Preview"
             }
         }
     }

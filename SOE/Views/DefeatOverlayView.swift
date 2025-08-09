@@ -14,26 +14,20 @@ struct DefeatOverlayView: View {
                 .edgesIgnoringSafeArea(.all)
             
             // Основной контент
-            VStack(spacing: 15) {
-                Text("DEFEAT")
-                    .gFont(36)
-                    .padding(.vertical)
-                    .padding(.horizontal, 30)
-                    .background(
-                        Image(.labelFrame)
-                            .resizable()
-                    )
-                    .shadow(color: .red.opacity(0.7), radius: 10)
-                    .scaleEffect(isAnimating ? 1.1 : 1.0)
-                    .animation(
-                        Animation.easeInOut(duration: 0.8)
-                            .repeatForever(autoreverses: true),
-                        value: isAnimating
-                    )
+            VStack(spacing: 20) {
+                HStack {
+                    Text("Prize: 0")
+                        .gFont(22)
+                    
+                    Image(.coin)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 25)
+                }
                 
                 // Кнопки
-                VStack(spacing: 15) {
-                    ActionButtonView(title: "Retry", fontSize: 22, width: 250, height: 60) {
+                VStack(spacing: 8) {
+                    ActionButtonView(title: "Retry", fontSize: 22, width: 200, height: 55) {
                         // Предотвращаем многократное нажатие
                         guard !isProcessingAction else { return }
                         isProcessingAction = true
@@ -44,7 +38,7 @@ struct DefeatOverlayView: View {
                         }
                     }
                     
-                    ActionButtonView(title: "Menu", fontSize: 22, width: 250, height: 60) {
+                    ActionButtonView(title: "Menu", fontSize: 22, width: 200, height: 55) {
                         // Предотвращаем многократное нажатие
                         guard !isProcessingAction else { return }
                         isProcessingAction = true
@@ -58,10 +52,23 @@ struct DefeatOverlayView: View {
                 .padding(.top, 20)
                 .opacity(isProcessingAction ? 0.7 : 1.0)
             }
-            .padding(30)
+            .padding(.vertical, 50)
+            .padding(.horizontal, 50)
             .background(
-                Image(.mainFrame)
+                Image(.frameBubble)
                     .resizable()
+                    .overlay(alignment: .top) {
+                        Image(.labelFrame)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 250)
+                            .overlay {
+                                Text("you lost")
+                                    .gFont(24)
+                            }
+                            .offset(y: -30)
+                            .shadow(color: .red.opacity(0.7), radius: 10)
+                    }
             )
             .scaleEffect(overlayScale)
             .opacity(overlayOpacity)

@@ -11,70 +11,67 @@ struct AchievementView: View {
     
     var body: some View {
         ZStack {
-            // Background
             BgView()
             
-            VStack(spacing: 0) {
-                // Top bar with back button and coins counter
-                HStack {
-                    CircleButtonView(iconName: .btnArrow, height: 60) {
+            VStack {
+                HStack(alignment: .top) {
+                    CircleButtonView(iconName: .home, height: 60) {
                         appViewModel.navigateTo(.menu)
                     }
                     
                     Spacer()
                     
-                    // Coins counter
+                    Image(.labelFrame)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 250)
+                        .overlay {
+                            Text("Achievements")
+                                .gFont(24)
+                        }
+                    
+                    Spacer()
+                    
                     CoinBoardView(
                         coins: appViewModel.coins,
                         width: 150,
-                        height: 60
+                        height: 55
                     )
                 }
                 
                 Spacer()
-                
-                // Main content
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 10) {
-                        ForEach(viewModel.achievements) { achievement in
-                            AchievementItemView(
-                                achievement: achievement,
-                                isCompleted: viewModel.isAchievementCompleted(achievement.id),
-                                isNotified: viewModel.isAchievementNotified(achievement.id),
-                                onClaim: {
-                                    viewModel.claimReward(for: achievement.id)
-                                }
-                            )
-                        }
-                    }
-                    .padding(.vertical)
-                    .opacity(contentOpacity)
-                    .offset(y: contentOffset)
-                }
-                .frame(maxWidth: 400)
-                .padding(.vertical)
-                .padding(.horizontal, 30)
-                .background(
-                    Image(.mainFrame)
-                        .resizable()
-                )
-                
-                Spacer()
             }
             .padding()
-            .onAppear {
-                viewModel.appViewModel = appViewModel
-                
-                // Start animations with different delays
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
-                    titleScale = 1.0
-                    titleOpacity = 1.0
+            
+            ScrollView(.horizontal) {
+                HStack(spacing: 30) {
+                    ForEach(viewModel.achievements) { achievement in
+                        AchievementItemView(
+                            achievement: achievement,
+                            isCompleted: viewModel.isAchievementCompleted(achievement.id),
+                            isNotified: viewModel.isAchievementNotified(achievement.id),
+                            onClaim: {
+                                viewModel.claimReward(for: achievement.id)
+                            }
+                        )
+                    }
                 }
-                
-                withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
-                    contentOpacity = 1.0
-                    contentOffset = 0
-                }
+                .opacity(contentOpacity)
+                .offset(y: contentOffset)
+            }
+            .scrollIndicators(.hidden)
+        }
+        .onAppear {
+            viewModel.appViewModel = appViewModel
+            
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) {
+                titleScale = 1.0
+                titleOpacity = 1.0
+            }
+            
+            withAnimation(.easeOut(duration: 0.5).delay(0.3)) {
+                contentOpacity = 1.0
+                contentOffset = 0
             }
         }
     }
@@ -94,7 +91,7 @@ struct AchievementItemView: View {
             Image(achievement.imageName)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 100)
+                .frame(width: 200)
                 .scaleEffect(animate && isCompleted && !isNotified ? 1.1 : 1.0)
                 .animation(
                     Animation.easeInOut(duration: 1.5)
@@ -104,50 +101,40 @@ struct AchievementItemView: View {
                 .onAppear {
                     animate = true
                 }
-                .overlay(alignment: .bottomTrailing) {
+                .overlay(alignment: .trailing) {
                     // Claim reward button or status
                     VStack {
                         if isCompleted {
                             if isNotified {
-                                // "Completed" status
-                                Image(systemName: "checkmark.circle.fill")
+                                // Completed status
+                                Image(.done)
                                     .resizable()
-                                    .frame(width: 20, height: 25)
-                                    .foregroundColor(.green)
+                                    .scaledToFit()
+                                    .frame(height: 25)
+                                    .offset(y: -25)
                             } else {
                                 // Claim reward button
                                 Button(action: onClaim) {
-                                    HStack {
-                                        Text("+\(achievement.reward)")
-                                            .gFont(14)
-                                        
-                                        Image("coin")
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(height: 20)
-                                    }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .background(
-                                        Capsule()
-                                            .foregroundStyle(.yellow)
-                                            .shadow(color: .black.opacity(0.5), radius: 3)
-                                    )
-                                    .scaleEffect(animate ? 1.05 : 1.0)
-                                    .animation(
-                                        Animation.easeInOut(duration: 0.8)
-                                            .repeatForever(autoreverses: true),
-                                        value: animate
-                                    )
+                                    Image(.btnAchievesGet)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 40)
+                                        .scaleEffect(animate ? 1.05 : 1.0)
+                                        .animation(
+                                            Animation.easeInOut(duration: 0.8)
+                                                .repeatForever(autoreverses: true),
+                                            value: animate
+                                        )
                                 }
+                                .padding(.trailing, 12)
                             }
                         } else {
                             // "Locked" status
-                            Image(systemName: "lock.fill")
+                            Image(.btnAchievesEmpty)
                                 .resizable()
-                                .frame(width: 20, height: 25)
-                                .foregroundColor(.white)
-                                .shadow(radius: 2)
+                                .scaledToFit()
+                                .frame(height: 40)
+                                .padding(.trailing, 12)
                         }
                     }
                 }

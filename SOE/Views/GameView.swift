@@ -29,7 +29,6 @@ struct GameView: View {
                                 .zIndex(90)
                         }
                         
-                        // Tournament overlay
                         if gameVM.showTournamentOverlay {
                             TournamentOverlayView()
                                 .environmentObject(appViewModel)
