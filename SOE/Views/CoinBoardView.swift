@@ -18,25 +18,19 @@ struct CoinBoardView: View {
             .frame(maxWidth: width, maxHeight: height)
             .overlay {
                 Text("\(coins)")
-                    .gFont(20)
-                    .offset(x: 5)
+                    .gFont(24)
+                    .offset(x: 12)
             }
             .overlay(alignment: .leading) {
-                ZStack {
-                    Image(.buttonC)
-                        .resizable()
-                        .scaledToFit()
-                    
-                    Image(.coin)
-                        .resizable()
-                        .scaledToFit()
-                        .padding(10)
-                }
-                .offset(x: -20)
+                Image(.coin)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 30)
+                    .padding(.leading, 8)
             }
     }
 }
 
 #Preview {
-    CoinBoardView(coins: 1999, width: 150, height: 60)
+    CoinBoardView(coins: 1000, width: 150, height: 60)
 }

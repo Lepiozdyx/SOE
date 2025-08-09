@@ -19,7 +19,7 @@ struct ShopView: View {
             VStack {
                 // Top bar with back button and coins counter
                 HStack {
-                    CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
+                    CircleButtonView(iconName: .btnArrow, height: 60) {
                         appViewModel.navigateTo(.menu)
                     }
                     

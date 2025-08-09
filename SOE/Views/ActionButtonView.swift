@@ -12,7 +12,7 @@ struct ActionButtonView: View {
     let fontSize: CGFloat
     let width: CGFloat
     let height: CGFloat
-    var isPaid: Bool = false
+    
     let action: () -> ()
     
     var body: some View {
@@ -20,26 +20,12 @@ struct ActionButtonView: View {
             action()
         } label: {
             ZStack {
-                Image(.buttonM)
+                Image(.btnAction)
                     .resizable()
                     .frame(maxWidth: width, maxHeight: height)
                 
-                VStack(spacing: 4) {
-                    Text(title)
-                        .gFont(fontSize)
-                   
-                    if isPaid {
-                        HStack {
-                            Image(.coin)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 25)
-                            
-                            Text("100")
-                                .gFont(16)
-                        }
-                    }
-                }
+                Text(title)
+                    .gFont(fontSize)
             }
         }
         .withSound()

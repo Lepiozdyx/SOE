@@ -50,7 +50,7 @@ class GameViewModel: ObservableObject {
             isTournamentMode = appVM.isTournamentMode
         }
         
-        let backgroundId = appViewModel?.gameState.currentBackgroundId ?? "default"
+        let backgroundId = appViewModel?.gameState.currentBackgroundId ?? "bg1"
         let skinId = appViewModel?.gameState.currentSkinId ?? "default"
         let typeId = appViewModel?.gameState.currentTypeId ?? "type1"
         

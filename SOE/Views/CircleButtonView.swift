@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CircleButtonView: View {
-    let iconName: String
+    let iconName: ImageResource
     let height: CGFloat
     let action: () -> ()
     
@@ -16,23 +16,21 @@ struct CircleButtonView: View {
         Button {
             action()
         } label: {
-            ZStack {
-                Image(.buttonC)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: height)
-                
-                Image(systemName: iconName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 35)
-                    .foregroundStyle(.black.opacity(0.6))
-            }
+            Image(.btnCircle)
+                .resizable()
+                .scaledToFit()
+                .frame(height: height)
+                .overlay {
+                    Image(iconName)
+                        .resizable()
+                        .scaledToFit()
+                        .padding()
+                }
         }
         .withSound()
     }
 }
 
 #Preview {
-    CircleButtonView(iconName: "gift.fill", height: 60, action: {})
+    CircleButtonView(iconName: .home, height: 60, action: {})
 }

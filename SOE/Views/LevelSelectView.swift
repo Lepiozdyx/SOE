@@ -25,7 +25,7 @@ struct LevelSelectView: View {
             VStack {
                 // Top bar with back button and coins counter
                 HStack(alignment: .top) {
-                    CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
+                    CircleButtonView(iconName: .btnArrow, height: 60) {
                         appViewModel.navigateTo(.menu)
                     }
                     
@@ -115,7 +115,7 @@ struct LevelTileView: View {
                         Text("\(level)")
                             .gFont(18)
                         
-                        Image(.buttonC)
+                        Image(.btnCircle)
                             .resizable()
                             .scaledToFit()
                             .frame(height: 40)

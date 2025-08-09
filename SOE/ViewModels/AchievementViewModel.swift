@@ -50,30 +50,25 @@ class AchievementViewModel: ObservableObject {
         guard let appViewModel = appViewModel else { return }
         let gameState = appViewModel.gameState
         
-        // "Первый полёт" (first_flight) - завершить первый уровень
         if gameState.levelsCompleted > 0 {
-            unlockAchievement("first_flight")
+            unlockAchievement("first_step")
         }
         
-        // "Король скорости" (wind_speed) - использовать ускорение 50 раз
-        if gameViewModel.accelerationCount >= 50 {
-            unlockAchievement("wind_speed")
-        }
+//        if gameViewModel.accelerationCount >= 50 {
+//            unlockAchievement("wind_speed")
+//        }
         
-        // "Небесный чемпион" (celestial_champion) - победа в трех уровнях подряд
         if gameViewModel.consecutiveNoCollisionLevels >= 3 {
-            unlockAchievement("celestial_champion")
+            unlockAchievement("achieve_master_of_chaos")
         }
         
-        // "Мастер-тренер" (master_trainer) - разблокировать все уровни
         if gameState.maxCompletedLevel >= 10 {
-            unlockAchievement("master_trainer")
+            unlockAchievement("adaptation_champion")
         }
         
-        // "Коллекционер крыльев" (wings_collector) - собрать все виды птиц
         let allSkinsPurchased = gameState.purchasedSkins.count >= FishSkinItem.availableSkins.count
         if allSkinsPurchased {
-            unlockAchievement("wings_collector")
+            unlockAchievement("grindilka_veteran")
         }
         
         appViewModel.saveGameState()

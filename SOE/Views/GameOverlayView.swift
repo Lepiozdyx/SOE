@@ -9,7 +9,7 @@ struct GameOverlayView: View {
         VStack {
             HStack(alignment: .top) {
                 // Кнопка паузы
-                CircleButtonView(iconName: "pause.circle", height: 50) {
+                CircleButtonView(iconName: .home, height: 50) {
                     appViewModel.pauseGame()
                 }
                 
@@ -125,7 +125,7 @@ struct AccelerationButtonView: View {
     
     var body: some View {
         Button(action: action) {
-            Image(.buttonC)
+            Image(.btnCircle)
                 .resizable()
                 .scaledToFit()
                 .frame(height: 70)

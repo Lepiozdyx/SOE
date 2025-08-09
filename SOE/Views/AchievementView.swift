@@ -17,7 +17,7 @@ struct AchievementView: View {
             VStack(spacing: 0) {
                 // Top bar with back button and coins counter
                 HStack {
-                    CircleButtonView(iconName: "arrowshape.left.fill", height: 60) {
+                    CircleButtonView(iconName: .btnArrow, height: 60) {
                         appViewModel.navigateTo(.menu)
                     }
                     

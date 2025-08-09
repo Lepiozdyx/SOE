@@ -57,6 +57,7 @@ class AppViewModel: ObservableObject {
         saveGameState()
     }
     
+    #warning("убрать из финальной версии приложения")
     // Новый метод для запуска турнирного режима
     func startTournament() {
         // Проверяем наличие достаточного количества монет
@@ -243,7 +244,6 @@ class AppViewModel: ObservableObject {
             return calendar.dateComponents([.hour], from: lastClaimDate, to: now).hour! >= 24
         }
         
-        // Если никогда не получал награду, то можно получить
         return true
     }
 }
