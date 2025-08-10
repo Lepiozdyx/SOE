@@ -18,7 +18,6 @@ class MutationViewModel: ObservableObject {
     }
     
     // MARK: - Public Methods
-    
     func setupMutationState() {
         mutationState.reset()
         showPreGameOverlay = true
@@ -35,8 +34,6 @@ class MutationViewModel: ObservableObject {
     
     func startGame() {
         showPreGameOverlay = false
-        
-        // Resume the game when starting
         gameViewModel?.togglePause(false)
         
         objectWillChange.send()
@@ -44,8 +41,6 @@ class MutationViewModel: ObservableObject {
     
     func addResources(_ amount: Int) {
         mutationState.addResources(amount)
-        
-        print("DEBUG: Added \(amount) resources. Total: \(mutationState.availableResources). Can afford: \(mutationState.canAffordMutation)")
         
         // Force UI update
         DispatchQueue.main.async {
@@ -69,14 +64,11 @@ class MutationViewModel: ObservableObject {
         
         isProcessingMutation = true
         
-        print("DEBUG: Opening mutation overlay. Target: \(mutationState.targetMutationType?.textureName ?? "nil")")
-        
         // Perform mutation and deduct resources immediately
         if let mutation = mutationState.performMutation() {
             currentMutationResult = mutation
             showMutationOverlay = true
             
-            // Pause the game
             gameViewModel?.togglePause(true)
         }
         
@@ -87,17 +79,13 @@ class MutationViewModel: ObservableObject {
     func acceptMutation() {
         guard let mutation = currentMutationResult else { return }
         
-        // Apply the mutation to the state
         mutationState.applyMutation(mutation)
-        
-        print("DEBUG: Accepted mutation: \(mutation.type.textureName). Current: \(mutationState.currentSkinType?.textureName ?? "nil"), Target: \(mutationState.targetMutationType?.textureName ?? "nil"), Won: \(mutationState.hasWon)")
         
         // Update the fish texture in the game scene
         gameViewModel?.updateFishTexture(mutation.type.textureName)
         
         // Check for victory
         if mutationState.hasWon {
-            print("DEBUG: VICTORY! Current matches target!")
             closeMutationOverlay()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.gameViewModel?.gameOver(win: true)
@@ -136,7 +124,6 @@ class MutationViewModel: ObservableObject {
         showMutationOverlay = false
         currentMutationResult = nil
         
-        // Resume the game
         gameViewModel?.togglePause(false)
         
         objectWillChange.send()
@@ -146,10 +133,9 @@ class MutationViewModel: ObservableObject {
     
     func resetForNewLevel() {
         setupMutationState()
-        // Reset fish texture to default for new level
+        
         if gameViewModel != nil {
             gameViewModel?.updateFishTexture("skin_default")
-            // Pause the game while showing pre-game overlay
             gameViewModel?.togglePause(true)
         }
     }
@@ -168,7 +154,6 @@ class MutationViewModel: ObservableObject {
         // Reset fish texture to default for restart
         if gameViewModel != nil {
             gameViewModel?.updateFishTexture("skin_default")
-            // Pause the game while showing pre-game overlay
             gameViewModel?.togglePause(true)
         }
         

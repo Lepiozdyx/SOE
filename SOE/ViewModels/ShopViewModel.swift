@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 class ShopViewModel: ObservableObject {
+    
     enum ShopTab {
         case skins
         case backgrounds
@@ -22,8 +23,7 @@ class ShopViewModel: ObservableObject {
         availableBackgrounds = BackgroundItem.availableBackgrounds
     }
     
-    // MARK: - Методы для скинов
-    
+    // MARK: - Skins methods
     func isSkinPurchased(_ id: String) -> Bool {
         guard let gameState = appViewModel?.gameState else { return false }
         return id == "default" || gameState.purchasedSkins.contains(id)

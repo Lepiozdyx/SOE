@@ -33,7 +33,6 @@ class AchievementViewModel: ObservableObject {
               isAchievementCompleted(achievementId),
               !isAchievementNotified(achievementId) else { return }
         
-        // Добавляем награду за достижение из GameConstants
         appViewModel.addCoins(GameConstants.achievementReward)
         
         if !appViewModel.gameState.notifiedAchievements.contains(achievementId) {

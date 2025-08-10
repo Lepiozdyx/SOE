@@ -1,6 +1,5 @@
 import Foundation
 
-// Типы препятствий в игре
 enum ObstacleType: String, CaseIterable {
     case shadow = "shadow"
     

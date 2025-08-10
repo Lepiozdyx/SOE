@@ -73,7 +73,6 @@ class AppViewModel: ObservableObject {
         
         addCoins(GameConstants.levelCompletionReward)
         
-        // Проверка достижения
         if gameState.maxCompletedLevel >= GameConstants.maxLevels {
             let achievementVM = AchievementViewModel()
             achievementVM.appViewModel = self
@@ -91,19 +90,14 @@ class AppViewModel: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
-            // Сначала убеждаемся, что все оверлеи скрыты
             if let gameVM = self.gameViewModel {
                 gameVM.showVictoryOverlay = false
                 gameVM.showDefeatOverlay = false
-                
-                // Важно сбросить состояние паузы до вызова resetGame
                 gameVM.isPaused = false
             }
             
-            // Теперь сбрасываем игру (включая мутации)
             self.gameViewModel?.resetGame()
             
-            // Явно запускаем сцену
             if let gameVM = self.gameViewModel {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     gameVM.togglePause(false)
@@ -115,7 +109,6 @@ class AppViewModel: ObservableObject {
     }
     
     func goToNextLevel() {
-        // Увеличиваем уровень
         gameLevel += 1
         gameState.currentLevel = gameLevel
         saveGameState()
@@ -123,19 +116,13 @@ class AppViewModel: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
-            // Сначала убеждаемся, что все оверлеи скрыты
             if let gameVM = self.gameViewModel {
                 gameVM.showVictoryOverlay = false
                 gameVM.showDefeatOverlay = false
-                
-                // Важно сбросить состояние паузы до вызова resetGame
                 gameVM.isPaused = false
             }
-            
-            // Сбрасываем игру для нового уровня
             self.gameViewModel?.resetGame()
             
-            // Явно запускаем сцену
             if let gameVM = self.gameViewModel {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     gameVM.togglePause(false)
