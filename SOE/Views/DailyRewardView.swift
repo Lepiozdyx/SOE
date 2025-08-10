@@ -15,6 +15,11 @@ struct DailyRewardView: View {
         ZStack {
             BgView()
             
+            Image(.rays)
+                .resizable()
+                .opacity(0.5)
+                .ignoresSafeArea()
+            
             // Main reward content
             VStack(spacing: 10) {
                 if hasClaimedReward {

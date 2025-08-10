@@ -15,10 +15,29 @@ struct PreGameMutationView: View {
             // Semi-transparent background
             BgView()
             
-            VStack(spacing: 0) {
+            Image(.frameUpgrade)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 300)
+                .overlay(alignment: .bottom) {
+                    // Start game button
+                    ActionButtonView(
+                        title: "Start Evolution",
+                        fontSize: 20,
+                        width: 200,
+                        height: 55
+                    ) {
+                        startGame()
+                    }
+                    .scaleEffect(buttonScale)
+                    .opacity(buttonOpacity)
+                    .padding(.bottom)
+                }
+            
+            VStack(spacing: 10) {
                 // Title
                 Text("Your Target Evolution")
-                    .gFont(24)
+                    .gFont(20)
                 
                 // Target mutation display
                 VStack(spacing: 5) {
@@ -26,7 +45,7 @@ struct PreGameMutationView: View {
                     Image(mutationViewModel.getTargetSkinTexture())
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 100, height: 60)
+                        .frame(height: 80)
                         .scaleEffect(targetScale)
                         .opacity(targetOpacity)
                         .shadow(
@@ -38,44 +57,13 @@ struct PreGameMutationView: View {
                                 .repeatForever(autoreverses: true),
                             value: glowAnimation
                         )
-                    
-                    // Target mutation name
-                    Text(mutationViewModel.getTargetMutationName())
-                        .gFont(24)
-                        .opacity(targetOpacity)
-                        .foregroundStyle(.cyan)
+                        .padding()
+                        .background(
+                            Image(.buttonB)
+                                .resizable()
+                                .scaledToFit()
+                        )
                 }
-                .padding(.vertical, 20)
-                .padding(.horizontal, 40)
-                .background(
-                    Image(.frameUpgrade)
-                        .resizable()
-                        .scaledToFit()
-                )
-                
-                // Instructions
-                VStack(spacing: 8) {
-                    Text("Collect DNA particles to evolve")
-                        .gFont(16)
-                        .opacity(targetOpacity)
-                    
-                    Text("Spend resources wisely - they won't return!")
-                        .gFont(14)
-                        .opacity(targetOpacity)
-                        .foregroundStyle(.orange)
-                }
-                
-                // Start game button
-                ActionButtonView(
-                    title: "Start Evolution",
-                    fontSize: 20,
-                    width: 250,
-                    height: 60
-                ) {
-                    startGame()
-                }
-                .scaleEffect(buttonScale)
-                .opacity(buttonOpacity)
             }
         }
         .onAppear {

@@ -112,6 +112,11 @@ struct MenuView: View {
     // Daily reward overlay
     func dailyRewardOverlay() -> some View {
         ZStack {
+            Image(.rays)
+                .resizable()
+                .opacity(0.5)
+                .ignoresSafeArea()
+            
             Color.black.opacity(0.5)
                 .ignoresSafeArea()
                 .onTapGesture {

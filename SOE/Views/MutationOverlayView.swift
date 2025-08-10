@@ -14,37 +14,106 @@ struct MutationOverlayView: View {
     var body: some View {
         ZStack {
             // Background overlay
-            Color.black.opacity(0.9)
+            Color.black.opacity(0.7)
                 .ignoresSafeArea()
             
-            VStack(spacing: 0) {
-                // Title
-                Text("Mutation Available!")
-                    .gFont(24)
-                
-                // Cost display
-                HStack {
-                    Text("Cost:")
-                        .gFont(18)
-                    
-                    Text("\(mutationViewModel.currentMutationResult?.cost ?? 0)")
-                        .gFont(20)
-                        .foregroundStyle(.red)
-                    
-                    Image(.coin)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 25)
+            Image(.frameUpgrade)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 300)
+                .overlay(alignment: .topTrailing) {
+                    // Reject button
+                    Button {
+                        rejectMutation()
+                    } label: {
+                        Image(.btnClose)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 50)
+                    }
                 }
+                .overlay(alignment: .bottom) {
+                    // Action buttons
+                    HStack(spacing: 20) {
+                        // Accept button
+                        ActionButtonView(
+                            title: "mutate",
+                            fontSize: 18,
+                            width: 150,
+                            height: 50
+                        ) {
+                            acceptMutation()
+                        }
+                    }
+                    .opacity(buttonOpacity)
+                    .offset(y: buttonOffset)
+                }
+            
+            VStack(spacing: 8) {
+                // Title
+                Text("New Mutation Available!")
+                    .gFont(18)
                 
                 // Mutation result display
                 if let mutation = mutationViewModel.currentMutationResult {
-                    VStack(spacing: 15) {
+                    HStack(spacing: 15) {
+                        // Result skin image
+                        Image(.skinDefault)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 45)
+                            .padding()
+                            .background(
+                                Image(.buttonB)
+                                    .resizable()
+                                    .scaledToFit()
+                            )
+                        
+                        VStack {
+                            VStack(spacing: 5) {
+                                Text("Speed")
+                                    .gFont(14)
+                                
+                                Rectangle()
+                                    .foregroundStyle(.black.opacity(0.3))
+                                    .frame(maxWidth: 80, maxHeight: 12)
+                                    .overlay {
+                                        Rectangle()
+                                            .stroke(.blue, lineWidth: 2)
+                                    }
+                                    .overlay(alignment: .leading) {
+                                        Rectangle()
+                                            .foregroundStyle(.yellow.opacity(0.9))
+                                            .frame(width: 20, height: 10)
+                                            .padding(.horizontal, 1)
+                                    }
+                            }
+                            
+                            VStack(spacing: 5) {
+                                Text("Resource")
+                                    .gFont(14)
+                                
+                                Rectangle()
+                                    .foregroundStyle(.black.opacity(0.3))
+                                    .frame(maxWidth: 80, maxHeight: 12)
+                                    .overlay {
+                                        Rectangle()
+                                            .stroke(.blue, lineWidth: 2)
+                                    }
+                                    .overlay(alignment: .leading) {
+                                        Rectangle()
+                                            .foregroundStyle(.yellow.opacity(0.9))
+                                            .frame(width: 30, height: 10)
+                                            .padding(.horizontal, 1)
+                                    }
+                            }
+                        }
+                        
                         // Result skin image
                         Image(mutation.type.textureName)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 80, height: 40)
+                            .frame(height: 45)
                             .scaleEffect(mutationScale)
                             .opacity(mutationOpacity)
                             .scaleEffect(pulseAnimation ? 1.1 : 1.0)
@@ -57,52 +126,44 @@ struct MutationOverlayView: View {
                                     .repeatForever(autoreverses: true),
                                 value: pulseAnimation
                             )
-                        
-                        // Mutation name
-                        Text(mutation.type.displayName)
-                            .gFont(22)
-                            .foregroundStyle(.green)
-                            .opacity(mutationOpacity)
+                            .padding()
+                            .background(
+                                Image(.buttonB)
+                                    .resizable()
+                                    .scaledToFit()
+                            )
                     }
-                    .padding(.vertical, 20)
-                    .padding(.horizontal, 40)
-                    .background(
-                        Image(.frameUpgrade)
-                            .resizable()
-                            .scaledToFit()
-                    )
                 }
-                
-                // Warning text
-                Text("Resources spent cannot be returned!")
-                    .gFont(14)
-                    .foregroundStyle(.orange)
-                    .opacity(mutationOpacity)
-                
-                // Action buttons
-                HStack(spacing: 20) {
-                    // Reject button
-                    ActionButtonView(
-                        title: "Reject",
-                        fontSize: 18,
-                        width: 150,
-                        height: 50
-                    ) {
-                        rejectMutation()
-                    }
+
+                HStack {
+                    Image(.slotSpikes)
+                        .resizable()
+                        .scaledToFit()
                     
-                    // Accept button
-                    ActionButtonView(
-                        title: "Accept",
-                        fontSize: 18,
-                        width: 150,
-                        height: 50
-                    ) {
-                        acceptMutation()
-                    }
+                    Image(.slotJaw)
+                        .resizable()
+                        .scaledToFit()
+                    
+                    Image(.slotFins)
+                        .resizable()
+                        .scaledToFit()
                 }
-                .opacity(buttonOpacity)
-                .offset(y: buttonOffset)
+                .frame(height: 45)
+                
+                // Cost display
+                HStack(alignment: .bottom) {
+                    Text("Cost:")
+                        .gFont(12)
+                    
+                    Text("\(mutationViewModel.currentMutationResult?.cost ?? 0)")
+                        .gFont(16)
+                        .foregroundStyle(.red)
+                    
+                    Image(.coin)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 16)
+                }
             }
             .padding()
             .scaleEffect(overlayScale)
