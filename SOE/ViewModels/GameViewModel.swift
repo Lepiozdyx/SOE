@@ -241,6 +241,8 @@ extension GameViewModel: GameSceneDelegate {
         score += coinValue
         coinCollectedCount += 1
         
+        print("DEBUG: Collected coin. MutationViewModel exists: \(mutationViewModel != nil)")
+        
         // Добавляем ресурсы в систему мутаций
         mutationViewModel?.addResources(coinValue)
         

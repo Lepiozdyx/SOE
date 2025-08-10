@@ -84,7 +84,6 @@ struct GameView: View {
     
     private func setupMutationViewModel() {
         mutationViewModel.appViewModel = appViewModel
-        mutationViewModel.gameViewModel = appViewModel.gameViewModel
         
         // Setup mutation state for current level
         mutationViewModel.setupMutationState()
@@ -108,12 +107,16 @@ struct SpriteKitGameView: UIViewRepresentable {
     }
     
     func updateUIView(_ view: SKView, context: Context) {
+        // Ensure GameViewModel exists and is properly connected
         if appViewModel.gameViewModel == nil {
             appViewModel.gameViewModel = GameViewModel()
-            appViewModel.gameViewModel?.appViewModel = appViewModel
-            appViewModel.gameViewModel?.mutationViewModel = mutationViewModel
-            mutationViewModel.gameViewModel = appViewModel.gameViewModel
         }
+        
+        // Setup connections
+        appViewModel.gameViewModel?.appViewModel = appViewModel
+        appViewModel.gameViewModel?.mutationViewModel = mutationViewModel
+        mutationViewModel.gameViewModel = appViewModel.gameViewModel
+        mutationViewModel.appViewModel = appViewModel
         
         if view.scene == nil {
             let scene = appViewModel.gameViewModel?.setupScene(size: size)

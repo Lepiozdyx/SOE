@@ -13,8 +13,7 @@ struct PreGameMutationView: View {
     var body: some View {
         ZStack {
             // Semi-transparent background
-            Color.black.opacity(0.8)
-                .ignoresSafeArea()
+            BgView()
             
             VStack(spacing: 0) {
                 // Title

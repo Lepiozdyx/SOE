@@ -38,8 +38,9 @@ class AppViewModel: ObservableObject {
         let levelToStart = level ?? gameState.currentLevel
         gameLevel = levelToStart
         gameState.currentLevel = levelToStart
-        gameViewModel = GameViewModel()
-        gameViewModel?.appViewModel = self
+        
+        gameViewModel = nil
+        
         navigateTo(.game)
         saveGameState()
     }

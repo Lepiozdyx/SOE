@@ -45,6 +45,8 @@ class MutationViewModel: ObservableObject {
     func addResources(_ amount: Int) {
         mutationState.addResources(amount)
         
+        print("DEBUG: Added \(amount) resources. Total: \(mutationState.availableResources). Can afford: \(mutationState.canAffordMutation)")
+        
         // Force UI update
         DispatchQueue.main.async {
             self.objectWillChange.send()
@@ -67,6 +69,8 @@ class MutationViewModel: ObservableObject {
         
         isProcessingMutation = true
         
+        print("DEBUG: Opening mutation overlay. Target: \(mutationState.targetMutationType?.textureName ?? "nil")")
+        
         // Perform mutation and deduct resources immediately
         if let mutation = mutationState.performMutation() {
             currentMutationResult = mutation
@@ -86,11 +90,14 @@ class MutationViewModel: ObservableObject {
         // Apply the mutation to the state
         mutationState.applyMutation(mutation)
         
+        print("DEBUG: Accepted mutation: \(mutation.type.textureName). Current: \(mutationState.currentSkinType?.textureName ?? "nil"), Target: \(mutationState.targetMutationType?.textureName ?? "nil"), Won: \(mutationState.hasWon)")
+        
         // Update the fish texture in the game scene
         gameViewModel?.updateFishTexture(mutation.type.textureName)
         
         // Check for victory
         if mutationState.hasWon {
+            print("DEBUG: VICTORY! Current matches target!")
             closeMutationOverlay()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.gameViewModel?.gameOver(win: true)

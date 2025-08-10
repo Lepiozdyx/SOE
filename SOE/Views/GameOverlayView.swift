@@ -19,9 +19,18 @@ struct GameOverlayView: View {
                 
                 Spacer()
                 
+                // DEBUG: Show mutation state
+                Text("DEBUG: Resources: \(mutationViewModel.availableResources), Cost: \(mutationViewModel.nextMutationCost), CanShow: \(mutationViewModel.canShowMutationButton())")
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .padding()
+                
+                Spacer()
+                
                 // Mutation button - appears when player can afford mutation
                 if mutationViewModel.canShowMutationButton() {
                     Button {
+                        print("DEBUG: Mutation button pressed")
                         mutationViewModel.openMutationOverlay()
                     } label: {
                         VStack(spacing: 4) {
@@ -60,10 +69,6 @@ struct GameOverlayView: View {
                             }
                             .padding(.horizontal, 8)
                             .padding(.vertical, 2)
-                            .background(
-                                Capsule()
-                                    .fill(.black.opacity(0.7))
-                            )
                         }
                     }
                     .scaleEffect(mutationButtonScale)
