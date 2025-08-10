@@ -54,15 +54,11 @@ class AchievementViewModel: ObservableObject {
             unlockAchievement("first_step")
         }
         
-//        if gameViewModel.accelerationCount >= 50 {
-//            unlockAchievement("wind_speed")
-//        }
-        
         if gameViewModel.consecutiveNoCollisionLevels >= 3 {
             unlockAchievement("achieve_master_of_chaos")
         }
         
-        if gameState.maxCompletedLevel >= 10 {
+        if gameState.maxCompletedLevel >= 3 {
             unlockAchievement("adaptation_champion")
         }
         

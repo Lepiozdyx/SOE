@@ -37,9 +37,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var lastObstacleSpawnTime: TimeInterval = 0
     private var lastCoinSpawnTime: TimeInterval = 0
     
-    // Скорость игры и ускорение
+    // Скорость игры
     private var baseSpeed: CGFloat = GameConstants.obstacleBaseMinSpeed
-    private var accelerationEnabled: Bool = false
     
     // Параметры для синхронизации с вью-моделью
     private let backgroundId: String
@@ -50,34 +49,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Текущий уровень игры
     private let level: Int
     
-    // Флаг турнирного режима
-    private let isTournament: Bool
-    
     // Расчетные значения скоростей и интервалов в зависимости от уровня
     private var obstacleSpawnInterval: TimeInterval
     private var obstacleMinSpeed: CGFloat
     private var obstacleMaxSpeed: CGFloat
 
     // MARK: - Инициализация
-    init(size: CGSize, backgroundId: String, skinId: String, typeId: String, level: Int, isTournament: Bool = false) {
+    init(size: CGSize, backgroundId: String, skinId: String, typeId: String, level: Int) {
         self.backgroundId = backgroundId
         self.skinId = skinId
         self.typeId = typeId
         self.level = level
-        self.isTournament = isTournament
         
-        // Инициализация скоростей и интервалов на основе уровня или турнирного режима
-        if isTournament {
-            // Используем специальные настройки для турнирного режима
-            self.obstacleSpawnInterval = GameConstants.tournamentSpawnInterval
-            self.obstacleMinSpeed = GameConstants.tournamentMinSpeed
-            self.obstacleMaxSpeed = GameConstants.tournamentMaxSpeed
-        } else {
-            // Используем настройки, основанные на уровне
-            self.obstacleSpawnInterval = GameConstants.obstacleSpawnInterval(for: level)
-            self.obstacleMinSpeed = GameConstants.obstacleMinSpeed(for: level)
-            self.obstacleMaxSpeed = GameConstants.obstacleMaxSpeed(for: level)
-        }
+        // Используем настройки, основанные на уровне
+        self.obstacleSpawnInterval = GameConstants.obstacleSpawnInterval(for: level)
+        self.obstacleMinSpeed = GameConstants.obstacleMinSpeed(for: level)
+        self.obstacleMaxSpeed = GameConstants.obstacleMaxSpeed(for: level)
         
         // Установка базовой скорости на основе минимальной скорости для уровня
         self.baseSpeed = self.obstacleMinSpeed
@@ -129,7 +116,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func setupFish() {
-        // Создаем шарик с текстурой
         let fishTexture = SKTexture(imageNamed: "skin_default")
         fish = SKSpriteNode(texture: fishTexture)
         
@@ -156,7 +142,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func setupBoundaries() {
-        // Создаем верхнюю и нижнюю границы
         let borderBody = SKPhysicsBody(edgeLoopFrom: CGRect(x: 0, y: 0, width: size.width, height: size.height))
         borderBody.categoryBitMask = PhysicsCategory.boundary
         
@@ -209,8 +194,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fish.position = CGPoint(x: eagleX, y: eagleY)
         
         // Сбрасываем скорость
-        baseSpeed = obstacleMinSpeed // Используем скорость соответствующую текущему уровню
-        accelerationEnabled = false
+        baseSpeed = obstacleMinSpeed
         
         // Запускаем игру заново - делаем паузу в любом случае,
         // чтобы GameViewModel мог явно управлять запуском
@@ -223,11 +207,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         lastCoinSpawnTime = 0
     }
     
-    func setAcceleration(_ enabled: Bool) {
-        accelerationEnabled = enabled
-    }
-    
-    // методы для создания эффекта мигания
     func makeFishFlicker() {
         // Останавливаем предыдущую анимацию мигания, если она была
         fish.removeAction(forKey: "flickerAction")
@@ -280,9 +259,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func updateBackground(with dt: TimeInterval) {
         // Рассчитываем скорость движения фона
-        let speed = accelerationEnabled ?
-            GameConstants.backgroundMovePointsPerSec * GameConstants.accelerationMultiplier :
-            GameConstants.backgroundMovePointsPerSec
+        let speed = GameConstants.backgroundMovePointsPerSec
         
         // Смещаем оба фона
         backgroundA.position.x -= speed * CGFloat(dt)
@@ -301,9 +278,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func updateObstacles(with dt: TimeInterval) {
         // Рассчитываем текущую скорость препятствий
-        let currentSpeed = accelerationEnabled ?
-            baseSpeed * GameConstants.accelerationMultiplier :
-            baseSpeed
+        let currentSpeed = baseSpeed
         
         // Обновляем позиции всех препятствий
         for obstacle in obstacles {
@@ -313,9 +288,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func updateCoins(with dt: TimeInterval) {
         // Обновляем позиции всех монет
-        let currentSpeed = accelerationEnabled ?
-            baseSpeed * GameConstants.accelerationMultiplier :
-            baseSpeed
+        let currentSpeed = baseSpeed
         
         for coin in coins {
             coin.position.x -= currentSpeed * CGFloat(dt)
@@ -426,7 +399,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     // MARK: - Коллизии
-    
     func didBegin(_ contact: SKPhysicsContact) {
         let collision = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
         
@@ -445,23 +417,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func handleCollisionWithObstacle() {
-        // Сообщаем о столкновении через делегат
         gameDelegate?.didCollideWithObstacle()
     }
     
-    private func handleCollectionOfCoin(_ coin: SKSpriteNode) {   
-        // Удаляем монету
+    private func handleCollectionOfCoin(_ coin: SKSpriteNode) {
         coin.removeFromParent()
         if let index = coins.firstIndex(of: coin) {
             coins.remove(at: index)
         }
         
-        // Сообщаем о сборе монеты через делегат
         gameDelegate?.didCollectCoin()
     }
     
     // MARK: - Обработка касаний
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let touchLocation = touch.location(in: self)

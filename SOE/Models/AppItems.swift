@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 
-// Определяет различные экраны в приложении
 enum AppScreen: CaseIterable {
     case menu
     case levelSelect
@@ -13,7 +12,6 @@ enum AppScreen: CaseIterable {
     case upgrades
 }
 
-// Структура для элементов фона
 struct BackgroundItem: Identifiable, Codable, Equatable {
     let id: String
     let imageName: String
@@ -23,7 +21,6 @@ struct BackgroundItem: Identifiable, Codable, Equatable {
         return lhs.id == rhs.id
     }
     
-    // Доступные фоны в магазине
     static let availableBackgrounds: [BackgroundItem] = [
         BackgroundItem(id: "bg1", imageName: "bg1", price: 0),
         BackgroundItem(id: "bg2", imageName: "bg2", price: 100),
@@ -36,7 +33,6 @@ struct BackgroundItem: Identifiable, Codable, Equatable {
     }
 }
 
-// Структура для скинов
 struct FishSkinItem: Identifiable, Codable, Equatable {
     let id: String
     let imageName: String
@@ -46,7 +42,6 @@ struct FishSkinItem: Identifiable, Codable, Equatable {
         return lhs.id == rhs.id
     }
     
-    // Доступные скины в магазине
     static let availableSkins: [FishSkinItem] = [
         FishSkinItem(id: "default", imageName: "skin_default", price: 0),
         FishSkinItem(id: "skin2", imageName: "skin2", price: 100),
@@ -59,7 +54,7 @@ struct FishSkinItem: Identifiable, Codable, Equatable {
     }
 }
 
-#warning("убрать из финальной версии приложения")
+#warning("убрать или переделать в Мутации")
 // Структура для типов улучшений скинов
 struct EagleTypeUpgrade: Identifiable, Codable, Equatable {
     let id: String
@@ -86,7 +81,6 @@ struct EagleTypeUpgrade: Identifiable, Codable, Equatable {
     }
 }
 
-// Структура для достижений
 struct Achievement: Identifiable, Codable, Equatable {
     let id: String
     let imageName: String
@@ -96,7 +90,6 @@ struct Achievement: Identifiable, Codable, Equatable {
         return lhs.id == rhs.id
     }
     
-    // Список всех достижений
     static let allAchievements: [Achievement] = [
         Achievement(
             id: "first_step",

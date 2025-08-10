@@ -6,7 +6,6 @@ struct GameState: Codable {
     var coins: Int = 0
     var lastLoginDate: Date?
     
-    // Достижения
     var completedAchievements: [String] = []
     var notifiedAchievements: [String] = []
     
@@ -16,11 +15,8 @@ struct GameState: Codable {
     var purchasedBackgrounds: [String] = ["default"]
     var currentBackgroundId: String = "default"
     
-    // Новые поля для типов улучшений
     var purchasedTypes: [String] = ["type1"]
     var currentTypeId: String = "type1"
-    
-    var tutorialCompleted: Bool = false
     
     var levelsCompleted: Int = 0
     var coinsCollected: Int = 0
@@ -34,7 +30,7 @@ struct GameState: Codable {
 }
 
 extension GameState {
-    private static let gameStateKey = "soaringEagleGameState"
+    private static let gameStateKey = "SOEGameState"
     
     static func load() -> GameState {
         guard let data = UserDefaults.standard.data(forKey: gameStateKey) else {
@@ -61,7 +57,7 @@ extension GameState {
             UserDefaults.standard.set(encoded, forKey: GameState.gameStateKey)
             UserDefaults.standard.synchronize()
         } catch {
-            print("[GameState] кодирование ошибка: \(error)")
+            print("[GameState]: \(error)")
         }
     }
     

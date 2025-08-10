@@ -10,9 +10,6 @@ class AppViewModel: ObservableObject {
     @Published var gameViewModel: GameViewModel?
     @Published var achievementViewModel: AchievementViewModel?
     
-    // Флаг для отслеживания турнирного режима
-    @Published var isTournamentMode: Bool = false
-    
     init() {
         self.gameState = GameState.load()
         self.coins = gameState.coins
@@ -25,11 +22,6 @@ class AppViewModel: ObservableObject {
     
     var currentSkin: String {
         return gameState.currentSkinId
-    }
-    
-    // Проверка, достаточно ли монет для турнирного режима
-    var canPlayTournament: Bool {
-        return coins >= GameConstants.tournamentEntryFee
     }
     
     func navigateTo(_ screen: AppScreen) {
@@ -47,29 +39,6 @@ class AppViewModel: ObservableObject {
         let levelToStart = level ?? gameState.currentLevel
         gameLevel = levelToStart
         gameState.currentLevel = levelToStart
-        
-        // Сбрасываем флаг турнирного режима при обычном запуске игры
-        isTournamentMode = false
-        
-        gameViewModel = GameViewModel()
-        gameViewModel?.appViewModel = self
-        navigateTo(.game)
-        saveGameState()
-    }
-    
-    #warning("убрать из финальной версии приложения")
-    // Новый метод для запуска турнирного режима
-    func startTournament() {
-        // Проверяем наличие достаточного количества монет
-        guard canPlayTournament else { return }
-        
-        // Списываем монеты за вход
-        addCoins(-GameConstants.tournamentEntryFee)
-        
-        // Устанавливаем флаг турнирного режима
-        isTournamentMode = true
-        
-        // Создаем GameViewModel с турнирным режимом
         gameViewModel = GameViewModel()
         gameViewModel?.appViewModel = self
         navigateTo(.game)
@@ -102,18 +71,13 @@ class AppViewModel: ObservableObject {
         
         gameState.levelsCompleted += 1
         
-        // Не добавляем монеты за победу в турнирном режиме здесь,
-        // так как они начисляются непосредственно во время игры
-        if !isTournamentMode {
-            // Добавляем монеты за победу на уровне только в обычном режиме
-            addCoins(GameConstants.levelCompletionReward)
-        }
+        addCoins(GameConstants.levelCompletionReward)
         
-        // Проверка достижения "Мастер-орёл"
+        // Проверка достижения
         if gameState.maxCompletedLevel >= GameConstants.maxLevels {
             let achievementVM = AchievementViewModel()
             achievementVM.appViewModel = self
-            achievementVM.unlockAchievement("master_eagle")
+            achievementVM.unlockAchievement("adaptation_champion")
         }
         
         saveGameState()
@@ -131,6 +95,7 @@ class AppViewModel: ObservableObject {
             if let gameVM = self.gameViewModel {
                 gameVM.showVictoryOverlay = false
                 gameVM.showDefeatOverlay = false
+                
                 gameVM.showTournamentOverlay = false // Добавляем скрытие турнирного оверлея
                 
                 // Важно сбросить состояние паузы до вызова resetGame
@@ -164,6 +129,7 @@ class AppViewModel: ObservableObject {
             if let gameVM = self.gameViewModel {
                 gameVM.showVictoryOverlay = false
                 gameVM.showDefeatOverlay = false
+                
                 gameVM.showTournamentOverlay = false // Добавляем скрытие турнирного оверлея
                 
                 // Важно сбросить состояние паузы до вызова resetGame
@@ -221,14 +187,12 @@ class AppViewModel: ObservableObject {
         let calendar = Calendar.current
         
         if let lastClaimDate = gameState.lastDailyRewardClaimDate {
-            // Проверяем, прошли ли 24 часа с момента последнего получения награды
             if calendar.dateComponents([.hour], from: lastClaimDate, to: now).hour! >= 24 {
                 addCoins(GameConstants.dailyReward)
                 gameState.lastDailyRewardClaimDate = now
                 saveGameState()
             }
         } else {
-            // Если первое получение награды
             addCoins(GameConstants.dailyReward)
             gameState.lastDailyRewardClaimDate = now
             saveGameState()
@@ -240,7 +204,6 @@ class AppViewModel: ObservableObject {
         let calendar = Calendar.current
         
         if let lastClaimDate = gameState.lastDailyRewardClaimDate {
-            // Проверяем, прошли ли 24 часа с момента последнего получения награды
             return calendar.dateComponents([.hour], from: lastClaimDate, to: now).hour! >= 24
         }
         
