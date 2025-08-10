@@ -90,7 +90,7 @@ struct AchievementItemView: View {
             Image(achievement.imageName)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 200)
+                .frame(width: 250)
                 .scaleEffect(animate && isCompleted && !isNotified ? 1.1 : 1.0)
                 .animation(
                     Animation.easeInOut(duration: 1.5)
@@ -109,7 +109,7 @@ struct AchievementItemView: View {
                                 Image(.done)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(height: 25)
+                                    .frame(height: 35)
                                     .offset(y: -25)
                             } else {
                                 // Claim reward button
@@ -117,7 +117,7 @@ struct AchievementItemView: View {
                                     Image(.btnAchievesGet)
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(height: 40)
+                                        .frame(height: 50)
                                         .scaleEffect(animate ? 1.05 : 1.0)
                                         .animation(
                                             Animation.easeInOut(duration: 0.8)
@@ -125,15 +125,15 @@ struct AchievementItemView: View {
                                             value: animate
                                         )
                                 }
-                                .padding(.trailing, 12)
+                                .padding(.trailing, 14)
                             }
                         } else {
                             // "Locked" status
                             Image(.btnAchievesEmpty)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(height: 40)
-                                .padding(.trailing, 12)
+                                .frame(height: 50)
+                                .padding(.trailing, 14)
                         }
                     }
                 }
