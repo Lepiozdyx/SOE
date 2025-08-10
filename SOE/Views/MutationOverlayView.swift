@@ -57,8 +57,8 @@ struct MutationOverlayView: View {
                 // Mutation result display
                 if let mutation = mutationViewModel.currentMutationResult {
                     HStack(spacing: 15) {
-                        // Result skin image
-                        Image(.skinDefault)
+                        // Current skin image
+                        Image(getBaseSkinTexture())
                             .resizable()
                             .scaledToFit()
                             .frame(height: 45)
@@ -172,6 +172,11 @@ struct MutationOverlayView: View {
         .onAppear {
             startAnimations()
         }
+    }
+    
+    private func getBaseSkinTexture() -> String {
+        // Get the base skin selected in shop
+        return mutationViewModel.appViewModel?.gameState.currentSkinId ?? "skin_default"
     }
     
     private func startAnimations() {

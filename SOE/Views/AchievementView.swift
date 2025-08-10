@@ -43,7 +43,7 @@ struct AchievementView: View {
             }
             .padding()
             
-            ScrollView(.horizontal) {
+            ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 30) {
                     ForEach(viewModel.achievements) { achievement in
                         AchievementItemView(
@@ -59,7 +59,6 @@ struct AchievementView: View {
                 .opacity(contentOpacity)
                 .offset(y: contentOffset)
             }
-            .scrollIndicators(.hidden)
         }
         .onAppear {
             viewModel.appViewModel = appViewModel

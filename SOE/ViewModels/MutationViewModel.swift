@@ -103,11 +103,17 @@ class MutationViewModel: ObservableObject {
     }
     
     func getCurrentSkinTexture() -> String {
-        return mutationState.currentSkinType?.textureName ?? "skin_default"
+        // If there's an active mutation, use that
+        if let currentMutation = mutationState.currentSkinType {
+            return currentMutation.textureName
+        }
+        
+        // Otherwise, use the skin selected in shop (not hardcoded default)
+        return getBaseSkinTexture()
     }
     
     func getTargetSkinTexture() -> String {
-        return mutationState.targetMutationType?.textureName ?? "skin_default"
+        return mutationState.targetMutationType?.textureName ?? getBaseSkinTexture()
     }
     
     func getTargetMutationName() -> String {
@@ -119,6 +125,10 @@ class MutationViewModel: ObservableObject {
     }
     
     // MARK: - Private Methods
+    
+    private func getBaseSkinTexture() -> String {
+        return appViewModel?.gameState.currentSkinId ?? "skin_default"
+    }
     
     private func closeMutationOverlay() {
         showMutationOverlay = false
@@ -135,7 +145,8 @@ class MutationViewModel: ObservableObject {
         setupMutationState()
         
         if gameViewModel != nil {
-            gameViewModel?.updateFishTexture("skin_default")
+            // Use selected skin from shop, not hardcoded default
+            gameViewModel?.updateFishTexture(getBaseSkinTexture())
             gameViewModel?.togglePause(true)
         }
     }
@@ -151,9 +162,9 @@ class MutationViewModel: ObservableObject {
         currentMutationResult = nil
         isProcessingMutation = false
         
-        // Reset fish texture to default for restart
+        // Reset fish texture to selected shop skin, not hardcoded default
         if gameViewModel != nil {
-            gameViewModel?.updateFishTexture("skin_default")
+            gameViewModel?.updateFishTexture(getBaseSkinTexture())
             gameViewModel?.togglePause(true)
         }
         

@@ -43,6 +43,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Parameters for view model synchronization
     private let backgroundId: String
     private var currentSkinId: String
+    private let baseSkinId: String // Store the selected shop skin
     private var isGamePaused: Bool = false
     
     // Current game level
@@ -57,6 +58,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     init(size: CGSize, backgroundId: String, skinId: String, level: Int) {
         self.backgroundId = backgroundId
         self.currentSkinId = skinId
+        self.baseSkinId = skinId // Store the base skin selected in shop
         self.level = level
         
         // Use level-based settings
@@ -112,7 +114,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func setupFish() {
-        let fishTexture = SKTexture(imageNamed: currentSkinId)
+        // Use the base skin selected in shop
+        let fishTexture = SKTexture(imageNamed: baseSkinId)
         fish = SKSpriteNode(texture: fishTexture)
         
         fish.size = GameConstants.fishSize
@@ -265,10 +268,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let fishY = size.height * GameConstants.fishInitialY
         fish.position = CGPoint(x: fishX, y: fishY)
         
-        // Reset texture to default
-        currentSkinId = "skin_default"
-        let defaultTexture = SKTexture(imageNamed: "skin_default")
-        fish.texture = defaultTexture
+        // Reset texture to base skin selected in shop (not hardcoded default)
+        currentSkinId = baseSkinId
+        let baseTexture = SKTexture(imageNamed: baseSkinId)
+        fish.texture = baseTexture
         fish.alpha = 1.0
         fish.setScale(1.0)
         fish.color = .white

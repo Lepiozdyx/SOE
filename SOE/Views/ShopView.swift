@@ -39,18 +39,9 @@ struct ShopView: View {
                 Image(.frameShop)
                     .resizable()
                     .scaledToFit()
-                    .frame(maxHeight: 260)
-                
-                VStack {
-                    // Tab selector
-                    TabSelectorView(
-                        selectedTab: $viewModel.currentTab
-                    )
-                    .opacity(contentOpacity)
-                    .offset(y: contentOffset)
-                    
-                    // Shop items grid
-                    VStack {
+                    .frame(maxHeight: 300)
+                    .overlay {
+                        // Shop items grid
                         LazyVGrid(columns: columns, spacing: 10) {
                             if viewModel.currentTab == .skins {
                                 ForEach(viewModel.availableSkins) { skin in
@@ -90,11 +81,18 @@ struct ShopView: View {
                                 }
                             }
                         }
+                        .frame(maxWidth: 250)
+                        .opacity(contentOpacity)
+                        .offset(y: contentOffset)
+                        .padding(.top)
                     }
-                    .frame(maxWidth: 200)
-                    .opacity(contentOpacity)
-                    .offset(y: contentOffset)
-                }
+                
+                // Tab selector
+                TabSelectorView(
+                    selectedTab: $viewModel.currentTab
+                )
+                .opacity(contentOpacity)
+                .offset(y: contentOffset)
             }
         }
         .onAppear {
@@ -118,7 +116,7 @@ struct TabSelectorView: View {
     @Binding var selectedTab: ShopViewModel.ShopTab
     
     var body: some View {
-        HStack(spacing: 20) {
+        VStack(spacing: 20) {
             TabButton(
                 title: "Skin",
                 isSelected: selectedTab == .skins,
@@ -152,7 +150,7 @@ struct TabButton: View {
         Button(action: action) {
             Image(.btnAction)
                 .resizable()
-                .frame(width: 100, height: 40)
+                .frame(width: 130, height: 50)
                 .overlay(
                     Text(title)
                         .gFont(16)
@@ -182,41 +180,40 @@ struct ShopItemView: View {
     @State private var isAnimating = false
     
     var body: some View {
-        VStack {
+        VStack(spacing: 2) {
             // Item image
             Image(getPreviewImageName())
                 .resizable()
                 .scaledToFit()
-                .frame(maxHeight: 70)
-                .overlay(alignment: .bottom) {
-                    // Buy/select button
-                    Button {
-                        if isPurchased {
-                            if !isSelected {
-                                onSelect()
-                            }
-                        } else if canAfford {
-                            onBuy()
-                        }
-                    } label: {
-                        if isPurchased {
-                            Image(.buttonM)
-                                .resizable()
-                                .frame(maxWidth: 100, maxHeight: 35)
-                                .overlay {
-                                    Text(isSelected ? "Selected" : "Select")
-                                        .gFont(12)
-                                }
-                        } else {
-                            Image(.btnBy)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 50)
-                        }
+                .frame(maxHeight: 60)
+            
+            // Buy/select button
+            Button {
+                if isPurchased {
+                    if !isSelected {
+                        onSelect()
                     }
-                    .disabled((isPurchased && isSelected) || (!isPurchased && !canAfford))
-                    .opacity((isPurchased && isSelected) || (!isPurchased && !canAfford) ? 0.6 : 1)
+                } else if canAfford {
+                    onBuy()
                 }
+            } label: {
+                if isPurchased {
+                    Image(isSelected ?  .buttonM : .btnAction)
+                        .resizable()
+                        .frame(maxWidth: 60, maxHeight: 25)
+                        .overlay {
+                            Text(isSelected ? "Selected" : "Select")
+                                .gFont(12)
+                        }
+                } else {
+                    Image(.btnBy)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 35)
+                }
+            }
+            .disabled((isPurchased && isSelected) || (!isPurchased && !canAfford))
+            .opacity((isPurchased && isSelected) || (!isPurchased && !canAfford) ? 0.6 : 1)
         }
     }
     
