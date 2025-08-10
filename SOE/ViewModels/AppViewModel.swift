@@ -1,5 +1,4 @@
 import SwiftUI
-import Combine
 
 class AppViewModel: ObservableObject {
     @Published var currentScreen: AppScreen = .menu
@@ -96,13 +95,11 @@ class AppViewModel: ObservableObject {
                 gameVM.showVictoryOverlay = false
                 gameVM.showDefeatOverlay = false
                 
-                gameVM.showTournamentOverlay = false // Добавляем скрытие турнирного оверлея
-                
                 // Важно сбросить состояние паузы до вызова resetGame
                 gameVM.isPaused = false
             }
             
-            // Теперь сбрасываем игру
+            // Теперь сбрасываем игру (включая мутации)
             self.gameViewModel?.resetGame()
             
             // Явно запускаем сцену
@@ -130,13 +127,11 @@ class AppViewModel: ObservableObject {
                 gameVM.showVictoryOverlay = false
                 gameVM.showDefeatOverlay = false
                 
-                gameVM.showTournamentOverlay = false // Добавляем скрытие турнирного оверлея
-                
                 // Важно сбросить состояние паузы до вызова resetGame
                 gameVM.isPaused = false
             }
             
-            // Теперь сбрасываем игру
+            // Сбрасываем игру для нового уровня
             self.gameViewModel?.resetGame()
             
             // Явно запускаем сцену

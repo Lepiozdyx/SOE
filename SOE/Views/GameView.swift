@@ -3,38 +3,51 @@ import SpriteKit
 
 struct GameView: View {
     @EnvironmentObject private var appViewModel: AppViewModel
+    @StateObject private var mutationViewModel = MutationViewModel()
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 // Main SpriteKit scene
-                SpriteKitGameView(size: geometry.size)
+                SpriteKitGameView(size: geometry.size, mutationViewModel: mutationViewModel)
                     .environmentObject(appViewModel)
                     .edgesIgnoringSafeArea(.all)
                 
-                // Game UI overlay
-                if let gameViewModel = appViewModel.gameViewModel {
-                    GameOverlayView(gameViewModel: gameViewModel)
-                        .environmentObject(appViewModel)
+                // Pre-game mutation overlay
+                if mutationViewModel.showPreGameOverlay {
+                    PreGameMutationView(mutationViewModel: mutationViewModel)
+                        .transition(.opacity)
+                        .animation(.easeInOut(duration: 0.5), value: mutationViewModel.showPreGameOverlay)
+                        .zIndex(200)
+                }
+                
+                // Game UI overlay (only when game is active)
+                if !mutationViewModel.showPreGameOverlay,
+                   let gameViewModel = appViewModel.gameViewModel {
+                    GameOverlayView(
+                        gameViewModel: gameViewModel,
+                        mutationViewModel: mutationViewModel
+                    )
+                    .environmentObject(appViewModel)
+                }
+                
+                // Mutation overlay
+                if mutationViewModel.showMutationOverlay {
+                    MutationOverlayView(mutationViewModel: mutationViewModel)
+                        .transition(.opacity)
+                        .animation(.easeInOut(duration: 0.3), value: mutationViewModel.showMutationOverlay)
+                        .zIndex(150)
                 }
                 
                 if let gameVM = appViewModel.gameViewModel {
                     Group {
                         // Pause overlay
-                        if gameVM.isPaused && !gameVM.showVictoryOverlay && !gameVM.showDefeatOverlay && !gameVM.showTournamentOverlay {
+                        if gameVM.isPaused && !gameVM.showVictoryOverlay && !gameVM.showDefeatOverlay && !mutationViewModel.showMutationOverlay {
                             PauseOverlayView()
                                 .environmentObject(appViewModel)
                                 .transition(.opacity)
                                 .animation(.easeInOut(duration: 0.3), value: gameVM.isPaused)
                                 .zIndex(90)
-                        }
-                        
-                        if gameVM.showTournamentOverlay {
-                            TournamentOverlayView()
-                                .environmentObject(appViewModel)
-                                .transition(.opacity)
-                                .animation(.easeInOut(duration: 0.3), value: gameVM.showTournamentOverlay)
-                                .zIndex(100)
                         }
                         
                         // Victory overlay
@@ -64,6 +77,17 @@ struct GameView: View {
                 }
             }
         }
+        .onAppear {
+            setupMutationViewModel()
+        }
+    }
+    
+    private func setupMutationViewModel() {
+        mutationViewModel.appViewModel = appViewModel
+        mutationViewModel.gameViewModel = appViewModel.gameViewModel
+        
+        // Setup mutation state for current level
+        mutationViewModel.setupMutationState()
     }
 }
 
@@ -72,6 +96,7 @@ struct GameView: View {
 struct SpriteKitGameView: UIViewRepresentable {
     @EnvironmentObject private var appViewModel: AppViewModel
     let size: CGSize
+    let mutationViewModel: MutationViewModel
     
     func makeUIView(context: Context) -> SKView {
         let view = SKView()
@@ -86,11 +111,16 @@ struct SpriteKitGameView: UIViewRepresentable {
         if appViewModel.gameViewModel == nil {
             appViewModel.gameViewModel = GameViewModel()
             appViewModel.gameViewModel?.appViewModel = appViewModel
+            appViewModel.gameViewModel?.mutationViewModel = mutationViewModel
+            mutationViewModel.gameViewModel = appViewModel.gameViewModel
         }
         
         if view.scene == nil {
             let scene = appViewModel.gameViewModel?.setupScene(size: size)
             view.presentScene(scene)
+            
+            // Immediately pause the game until pre-game overlay is dismissed
+            appViewModel.gameViewModel?.togglePause(true)
         }
     }
 }

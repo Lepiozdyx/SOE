@@ -15,9 +15,6 @@ struct GameState: Codable {
     var purchasedBackgrounds: [String] = ["default"]
     var currentBackgroundId: String = "default"
     
-    var purchasedTypes: [String] = ["type1"]
-    var currentTypeId: String = "type1"
-    
     var levelsCompleted: Int = 0
     var coinsCollected: Int = 0
     var perfectLevels: Int = 0

@@ -36,10 +36,6 @@ struct ContentView: View {
             case .dailyReward:
                 DailyRewardView()
                     .environmentObject(appViewModel)
-                
-            case .upgrades:
-                UpgradesView()
-                    .environmentObject(appViewModel)
             }
         }
         .onAppear {

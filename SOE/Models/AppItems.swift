@@ -9,7 +9,6 @@ enum AppScreen: CaseIterable {
     case shop
     case achievements
     case dailyReward
-    case upgrades
 }
 
 struct BackgroundItem: Identifiable, Codable, Equatable {
@@ -51,33 +50,6 @@ struct FishSkinItem: Identifiable, Codable, Equatable {
     
     static func getSkin(id: String) -> FishSkinItem {
         return availableSkins.first { $0.id == id } ?? availableSkins[0]
-    }
-}
-
-#warning("убрать или переделать в Мутации")
-// Структура для типов улучшений скинов
-struct EagleTypeUpgrade: Identifiable, Codable, Equatable {
-    let id: String
-    let name: String
-    let typeNumber: Int
-    let price: Int
-    let imageName: String
-    let rates: Int
-    
-    static func == (lhs: EagleTypeUpgrade, rhs: EagleTypeUpgrade) -> Bool {
-        return lhs.id == rhs.id
-    }
-    
-    // Доступные типы улучшений скинов
-    static let availableTypes: [EagleTypeUpgrade] = [
-        EagleTypeUpgrade(id: "type1", name: "Basic", typeNumber: 1, price: 0, imageName: "type1", rates: 0),
-        EagleTypeUpgrade(id: "type2", name: "Advanced", typeNumber: 2, price: 20, imageName: "type2", rates: 2),
-        EagleTypeUpgrade(id: "type3", name: "Elite", typeNumber: 3, price: 40, imageName: "type3", rates: 4),
-        EagleTypeUpgrade(id: "type4", name: "Ultimate", typeNumber: 4, price: 60, imageName: "type4", rates: 6)
-    ]
-    
-    static func getType(id: String) -> EagleTypeUpgrade {
-        return availableTypes.first { $0.id == id } ?? availableTypes[0]
     }
 }
 

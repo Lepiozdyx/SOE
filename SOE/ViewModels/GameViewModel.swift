@@ -1,5 +1,4 @@
 import SwiftUI
-import Combine
 
 class GameViewModel: ObservableObject {
     // MARK: - Published Properties
@@ -12,8 +11,6 @@ class GameViewModel: ObservableObject {
     @Published var showVictoryOverlay: Bool = false
     @Published var showDefeatOverlay: Bool = false
     
-    @Published var showTournamentOverlay: Bool = false // Новый флаг для турнирного оверлея
-    
     // MARK: - Отслеживание достижений
     @Published var coinCollectedCount: Int = 0
     @Published var accelerationCount: Int = 0
@@ -23,11 +20,11 @@ class GameViewModel: ObservableObject {
     private var gameScene: GameScene?
     private var gameTimer: Timer?
     private var invulnerabilityTimer: Timer?
-    private var cancellables = Set<AnyCancellable>()
     private var currentLevel: Int = 1 // Хранит текущий уровень игры
     
     // MARK: - Публичные свойства
     weak var appViewModel: AppViewModel?
+    weak var mutationViewModel: MutationViewModel?
     
     // MARK: - Инициализация
     init() {
@@ -47,15 +44,13 @@ class GameViewModel: ObservableObject {
         }
         
         let backgroundId = appViewModel?.gameState.currentBackgroundId ?? "bg1"
-        let skinId = appViewModel?.gameState.currentSkinId ?? "default"
-        let typeId = appViewModel?.gameState.currentTypeId ?? "type1"
+        let skinId = mutationViewModel?.getCurrentSkinTexture() ?? "skin_default"
         
         // Создаем игровую сцену с передачей уровня
         let scene = GameScene(
             size: size,
             backgroundId: backgroundId,
             skinId: skinId,
-            typeId: typeId,
             level: currentLevel
         )
         scene.scaleMode = .aspectFill
@@ -66,7 +61,12 @@ class GameViewModel: ObservableObject {
     
     func togglePause(_ paused: Bool) {
         // Если есть активный оверлей победы, поражения, не переключаем паузу
-        if (showVictoryOverlay || showDefeatOverlay || showTournamentOverlay) {
+        if (showVictoryOverlay || showDefeatOverlay) {
+            return
+        }
+        
+        // Если показывается оверлей мутации, не разрешаем снятие паузы
+        if let mutationVM = mutationViewModel, mutationVM.showMutationOverlay && !paused {
             return
         }
         
@@ -105,7 +105,6 @@ class GameViewModel: ObservableObject {
         
         showVictoryOverlay = false
         showDefeatOverlay = false
-        showTournamentOverlay = false
         
         // Очищаем и перезапускаем игру в синхронизированном порядке
         DispatchQueue.main.async { [weak self] in
@@ -124,7 +123,9 @@ class GameViewModel: ObservableObject {
             // Сбрасываем все визуальные состояния
             self.showVictoryOverlay = false
             self.showDefeatOverlay = false
-            self.showTournamentOverlay = false
+            
+            // Сбрасываем состояние мутаций
+            self.mutationViewModel?.resetForRestart()
             
             // Важно: сначала сбрасываем сцену
             self.gameScene?.resetGame()
@@ -138,6 +139,38 @@ class GameViewModel: ObservableObject {
             // Обновляем UI
             self.objectWillChange.send()
         }
+    }
+    
+    // Публичный метод для завершения игры (вызывается из MutationViewModel)
+    func gameOver(win: Bool) {
+        cleanup()
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            if win {
+                self.showVictoryOverlay = true
+                if !self.hasCollided {
+                    self.consecutiveNoCollisionLevels += 1
+                } else {
+                    self.consecutiveNoCollisionLevels = 0
+                }
+                self.appViewModel?.checkAchievements(gameViewModel: self)
+                self.appViewModel?.showVictory()
+            } else {
+                self.showDefeatOverlay = true
+                self.consecutiveNoCollisionLevels = 0
+                self.appViewModel?.showDefeat()
+            }
+            
+            self.objectWillChange.send()
+        }
+    }
+    
+    // MARK: - Mutation Support
+    
+    func updateFishTexture(_ newSkinId: String) {
+        gameScene?.updateFishTexture(newSkinId)
     }
     
     // MARK: - Приватные методы
@@ -154,14 +187,23 @@ class GameViewModel: ObservableObject {
             // Обновляем оставшееся время
             self.timeRemaining -= 0.1
             
-            // Проверяем окончание уровня по времени
+            // Проверяем окончание уровня по времени (только если нет системы мутаций)
             if self.timeRemaining <= 0 {
-                self.gameOver(win: true)
+                // В новой системе мутаций время может закончиться, но это не победа
+                // Победа определяется только через мутации
+                self.gameOverByTime()
             }
             
             DispatchQueue.main.async {
                 self.objectWillChange.send()
             }
+        }
+    }
+    
+    private func gameOverByTime() {
+        // Если время закончилось, но цель мутации не достигнута - это поражение
+        if let mutationVM = mutationViewModel, !mutationVM.hasWon {
+            gameOver(win: false)
         }
     }
     
@@ -183,32 +225,6 @@ class GameViewModel: ObservableObject {
         }
     }
     
-    private func gameOver(win: Bool) {
-        cleanup()
-        
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            // В обычном режиме показываем стандартные оверлеи
-            if win {
-                self.showVictoryOverlay = true
-                if !self.hasCollided {
-                    self.consecutiveNoCollisionLevels += 1
-                } else {
-                    self.consecutiveNoCollisionLevels = 0
-                }
-                self.appViewModel?.checkAchievements(gameViewModel: self)
-                self.appViewModel?.showVictory()
-            } else {
-                self.showDefeatOverlay = true
-                self.consecutiveNoCollisionLevels = 0
-                self.appViewModel?.showDefeat()
-            }
-            
-            self.objectWillChange.send()
-        }
-    }
-    
     private func cleanup() {
         gameTimer?.invalidate()
         invulnerabilityTimer?.invalidate()
@@ -224,6 +240,11 @@ extension GameViewModel: GameSceneDelegate {
         
         score += coinValue
         coinCollectedCount += 1
+        
+        // Добавляем ресурсы в систему мутаций
+        mutationViewModel?.addResources(coinValue)
+        
+        // Также добавляем монеты в общий счет игрока
         appViewModel?.addCoins(coinValue)
         
         DispatchQueue.main.async { [weak self] in

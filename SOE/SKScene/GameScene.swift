@@ -42,9 +42,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Параметры для синхронизации с вью-моделью
     private let backgroundId: String
-    private let skinId: String
+    private var currentSkinId: String
     private var isGamePaused: Bool = false
-    private let typeId: String
     
     // Текущий уровень игры
     private let level: Int
@@ -55,10 +54,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     private var obstacleMaxSpeed: CGFloat
 
     // MARK: - Инициализация
-    init(size: CGSize, backgroundId: String, skinId: String, typeId: String, level: Int) {
+    init(size: CGSize, backgroundId: String, skinId: String, level: Int) {
         self.backgroundId = backgroundId
-        self.skinId = skinId
-        self.typeId = typeId
+        self.currentSkinId = skinId
         self.level = level
         
         // Используем настройки, основанные на уровне
@@ -92,7 +90,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Получаем текстуру фона
         let backgroundTexture = SKTexture(imageNamed: getBackgroundImageName())
         
-        #warning("тут нужен второй фон?")
         // Создаем два одинаковых фоновых изображения для бесконечного скроллинга
         backgroundA = SKSpriteNode(texture: backgroundTexture)
         backgroundB = SKSpriteNode(texture: backgroundTexture)
@@ -116,7 +113,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func setupFish() {
-        let fishTexture = SKTexture(imageNamed: "skin_default")
+        let fishTexture = SKTexture(imageNamed: currentSkinId)
         fish = SKSpriteNode(texture: fishTexture)
         
         fish.size = GameConstants.fishSize
@@ -150,6 +147,85 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         border.physicsBody = borderBody
         
         addChild(border)
+    }
+    
+    // MARK: - Публичные методы для управления текстурой
+    
+    func updateFishTexture(_ newSkinId: String) {
+        guard fish != nil else { return }
+        
+        currentSkinId = newSkinId
+        let newTexture = SKTexture(imageNamed: newSkinId)
+        
+        // Обновляем текстуру с анимацией
+        let fadeOut = SKAction.fadeAlpha(to: 0.3, duration: 0.2)
+        let changeTexture = SKAction.run {
+            self.fish.texture = newTexture
+        }
+        let fadeIn = SKAction.fadeAlpha(to: 1.0, duration: 0.2)
+        
+        let sequenceAction = SKAction.sequence([fadeOut, changeTexture, fadeIn])
+        fish.run(sequenceAction)
+        
+        // Добавляем визуальный эффект мутации
+        addMutationEffect()
+    }
+    
+    private func addMutationEffect() {
+        // Создаем эффект мутации - свечение и частицы
+        let glowEffect = SKAction.sequence([
+            SKAction.run {
+                self.fish.run(SKAction.scale(to: 1.2, duration: 0.3))
+            },
+            SKAction.wait(forDuration: 0.3),
+            SKAction.run {
+                self.fish.run(SKAction.scale(to: 1.0, duration: 0.3))
+            }
+        ])
+        
+        // Эффект свечения
+        let originalColor = fish.color
+        let glowColor = SKAction.sequence([
+            SKAction.colorize(with: .cyan, colorBlendFactor: 0.5, duration: 0.2),
+            SKAction.colorize(with: originalColor, colorBlendFactor: 0.0, duration: 0.4)
+        ])
+        
+        fish.run(SKAction.group([glowEffect, glowColor]))
+        
+        // Добавляем эффект частиц
+        createMutationParticles()
+    }
+    
+    private func createMutationParticles() {
+        // Создаем простые частицы вокруг персонажа
+        for i in 0..<8 {
+            let particle = SKSpriteNode(imageNamed: "coin")
+            particle.size = CGSize(width: 15, height: 15)
+            particle.alpha = 0.7
+            
+            let angle = CGFloat(i) * CGFloat.pi / 4
+            let radius: CGFloat = 50
+            let startX = fish.position.x + cos(angle) * radius
+            let startY = fish.position.y + sin(angle) * radius
+            
+            particle.position = CGPoint(x: startX, y: startY)
+            particle.zPosition = 6
+            
+            addChild(particle)
+            
+            // Анимация частиц
+            let moveOut = SKAction.move(by: CGVector(dx: cos(angle) * 30, dy: sin(angle) * 30), duration: 0.5)
+            let fadeOut = SKAction.fadeOut(withDuration: 0.5)
+            let scale = SKAction.scale(to: 0.3, duration: 0.5)
+            let remove = SKAction.removeFromParent()
+            
+            let particleSequence = SKAction.sequence([
+                SKAction.group([moveOut, fadeOut, scale]),
+                remove
+            ])
+            
+            particle.run(particleSequence)
+        }
     }
     
     // MARK: - Управление игрой
@@ -189,9 +265,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         coins.removeAll()
         
         // Возвращаем шарик в начальную позицию
-        let eagleX = size.width * GameConstants.fishHorizontalPosition
-        let eagleY = size.height * GameConstants.fishInitialY
-        fish.position = CGPoint(x: eagleX, y: eagleY)
+        let fishX = size.width * GameConstants.fishHorizontalPosition
+        let fishY = size.height * GameConstants.fishInitialY
+        fish.position = CGPoint(x: fishX, y: fishY)
+        
+        // Сбрасываем текстуру к базовой
+        currentSkinId = "skin_default"
+        let defaultTexture = SKTexture(imageNamed: "skin_default")
+        fish.texture = defaultTexture
+        fish.alpha = 1.0
+        fish.setScale(1.0)
+        fish.color = .white
+        fish.colorBlendFactor = 0.0
         
         // Сбрасываем скорость
         baseSpeed = obstacleMinSpeed
@@ -311,18 +396,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     private func spawnObstacle() {
         // Выбираем тип препятствия
-//        let obstacleType = ObstacleType.random()
         let obstacleType = ObstacleType.shadow
         
         // Создаем препятствие
         let texture = SKTexture(imageNamed: obstacleType.imageName)
         let obstacle = SKSpriteNode(texture: texture)
-        
-        // Устанавливаем размер в зависимости от типа
-//        switch obstacleType {
-//        case .shadow:
-//            obstacle.size = GameConstants.ObstacleSizes.shadow
-//        }
         
         obstacle.size = GameConstants.ObstacleSizes.shadow
         
