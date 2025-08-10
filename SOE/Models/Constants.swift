@@ -1,65 +1,69 @@
 import Foundation
 import SwiftUI
 
-// Константы игры
+// Game constants
 struct GameConstants {
-    // Общие константы
+    // General constants
     static let defaultAnimationDuration: Double = 0.3
     
-    // Константы для игрового процесса
-    static let gameDuration: TimeInterval = 300 // 300 секунд на уровень
-    static let fishInitialY: CGFloat = 0.5 // Начальная позиция шарика (в процентах от высоты экрана)
-    static let fishHorizontalPosition: CGFloat = 0.15 // Позиция шарика по горизонтали (в процентах от ширины экрана)
-    static let fishSize = CGSize(width: 60, height: 50) // Размер шарика
+    // Gameplay constants
+    static let gameDuration: TimeInterval = 300 // 300 seconds per level
+    static let fishInitialY: CGFloat = 0.5 // Fish initial position (percentage of screen height)
+    static let fishHorizontalPosition: CGFloat = 0.15 // Fish horizontal position (percentage of screen width)
+    static let fishSize = CGSize(width: 60, height: 50) // Fish size
     
-    // Константы для фона
-    static let backgroundMovePointsPerSec: CGFloat = 100.0 // Скорость движения фона
+    // Background constants
+    static let backgroundMovePointsPerSec: CGFloat = 100.0 // Background movement speed
     
-    // Константы для препятствий
-    static let obstacleBaseSpawnInterval: TimeInterval = 2 // Базовый интервал появления препятствий
-    static let obstacleBaseMinSpeed: CGFloat = 300 // Базовая минимальная скорость препятствий
-    static let obstacleBaseMaxSpeed: CGFloat = 500 // Базовая максимальная скорость препятствий
+    // Obstacle constants
+    static let obstacleBaseSpawnInterval: TimeInterval = 4 // Increased interval - obstacles appear less frequently
+    static let obstacleBaseMinSpeed: CGFloat = 350 // Increased base minimum obstacle speed
+    static let obstacleBaseMaxSpeed: CGFloat = 450 // Increased base maximum obstacle speed
     
-    // Расчет интервала появления препятствий в зависимости от уровня
+    // Particle (DNA/coins) constants
+    static let particleSpawnInterval: TimeInterval = 0.8 // Particles appear frequently
+    static let particleSpeed: CGFloat = 150 // Low constant particle speed
+    static let particleSpawnChance: Double = 0.95 // High probability of particle appearance
+    
+    // Calculate obstacle spawn interval based on level
     static func obstacleSpawnInterval(for level: Int) -> TimeInterval {
-        let reduction = min(0.7, Double(level - 1) * 0.08) // Максимальное уменьшение интервала 0.7
-        return max(2, obstacleBaseSpawnInterval - reduction) // Минимальный интервал 0.8
+        let reduction = min(1.5, Double(level - 1) * 0.3) // Reduce interval for higher levels
+        return max(2.5, obstacleBaseSpawnInterval - reduction) // Minimum interval 2.5 seconds
     }
     
-    // Расчет минимальной скорости препятствий в зависимости от уровня
+    // Calculate minimum obstacle speed based on level
     static func obstacleMinSpeed(for level: Int) -> CGFloat {
-        let increase = CGFloat(level - 1) * 15.0 // Увеличиваем на 15 единиц за каждый уровень
+        let increase = CGFloat(level - 1) * 25.0 // Increase by 25 units per level
         return obstacleBaseMinSpeed + increase
     }
     
-    // Расчет максимальной скорости препятствий в зависимости от уровня
+    // Calculate maximum obstacle speed based on level
     static func obstacleMaxSpeed(for level: Int) -> CGFloat {
-        let increase = CGFloat(level - 1) * 30.0 // Увеличиваем на 30 единиц за каждый уровень
+        let increase = CGFloat(level - 1) * 35.0 // Increase by 35 units per level
         return obstacleBaseMaxSpeed + increase
     }
     
-    // Размеры препятствий
+    // Obstacle sizes
     struct ObstacleSizes {
         static let shadow = CGSize(width: 140, height: 80)
     }
     
-    // Константы для бонусов
-    static let coinSpawnChance: Double = 0.9 // Вероятность появления монетки (0-1)
-    static let coinSize = CGSize(width: 30, height: 25) // Размер монеты
-    static let coinValue: Int = 1 // Стоимость монеты в игровых очках
+    // Legacy coin constants (kept for compatibility)
+    static let coinSize = CGSize(width: 30, height: 25) // Coin size
+    static let coinValue: Int = 1 // Coin value in game points
     
-    // Награды за игровые действия
-    static let levelCompletionReward: Int = 100 // Награда за прохождение уровня
-    static let coinReward: Int = 1 // Награда за сбор монетки во время игры
-    static let achievementReward: Int = 10 // Награда за достижение
-    static let dailyReward: Int = 10 // Ежедневная награда
+    // Game rewards
+    static let levelCompletionReward: Int = 100 // Level completion reward
+    static let coinReward: Int = 1 // Coin collection reward during game
+    static let achievementReward: Int = 10 // Achievement reward
+    static let dailyReward: Int = 10 // Daily reward
     
-    // Физические константы
-    static let fishPhysicsBodyScale: CGFloat = 0.7 // Масштаб физического тела персонажа относительно спрайта
-    static let coinRotationDuration: TimeInterval = 2.5 // Время полного оборота монеты
+    // Physics constants
+    static let fishPhysicsBodyScale: CGFloat = 0.7 // Fish physics body scale relative to sprite
+    static let coinRotationDuration: TimeInterval = 2.5 // Full coin rotation time
     
-    // Игровые механики
-    static let maxLevels: Int = 3 // Общее количество уровней в игре
-    static let maxLives: Int = 1 // Максимальное количество жизней
-    static let fishFlickerCount: Int = 5 // Количество миганий персонажа
+    // Game mechanics
+    static let maxLevels: Int = 3 // Total number of levels in game
+    static let maxLives: Int = 1 // Maximum number of lives
+    static let fishFlickerCount: Int = 5 // Number of fish flickers
 }

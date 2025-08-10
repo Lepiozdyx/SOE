@@ -19,53 +19,53 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     weak var gameDelegate: GameSceneDelegate?
     
-    // Игровые ноды
+    // Game nodes
     private var fish: SKSpriteNode!
     private var backgroundA: SKSpriteNode!
     private var backgroundB: SKSpriteNode!
     
-    // Свойства для управления миганием
+    // Flicker properties
     private var flickerAction: SKAction?
     private var flickerRepeatAction: SKAction?
     
-    // Препятствия и монеты
+    // Obstacles and particles
     private var obstacles: [SKSpriteNode] = []
-    private var coins: [SKSpriteNode] = []
+    private var particles: [SKSpriteNode] = []
     
-    // Управление временем
+    // Time management
     private var lastUpdateTime: TimeInterval = 0
     private var lastObstacleSpawnTime: TimeInterval = 0
-    private var lastCoinSpawnTime: TimeInterval = 0
+    private var lastParticleSpawnTime: TimeInterval = 0
     
-    // Скорость игры
-    private var baseSpeed: CGFloat = GameConstants.obstacleBaseMinSpeed
+    // Game speed
+    private var baseObstacleSpeed: CGFloat = GameConstants.obstacleBaseMinSpeed
     
-    // Параметры для синхронизации с вью-моделью
+    // Parameters for view model synchronization
     private let backgroundId: String
     private var currentSkinId: String
     private var isGamePaused: Bool = false
     
-    // Текущий уровень игры
+    // Current game level
     private let level: Int
     
-    // Расчетные значения скоростей и интервалов в зависимости от уровня
+    // Calculated speed and interval values based on level
     private var obstacleSpawnInterval: TimeInterval
     private var obstacleMinSpeed: CGFloat
     private var obstacleMaxSpeed: CGFloat
 
-    // MARK: - Инициализация
+    // MARK: - Initialization
     init(size: CGSize, backgroundId: String, skinId: String, level: Int) {
         self.backgroundId = backgroundId
         self.currentSkinId = skinId
         self.level = level
         
-        // Используем настройки, основанные на уровне
+        // Use level-based settings
         self.obstacleSpawnInterval = GameConstants.obstacleSpawnInterval(for: level)
         self.obstacleMinSpeed = GameConstants.obstacleMinSpeed(for: level)
         self.obstacleMaxSpeed = GameConstants.obstacleMaxSpeed(for: level)
         
-        // Установка базовой скорости на основе минимальной скорости для уровня
-        self.baseSpeed = self.obstacleMinSpeed
+        // Set base speed based on minimum speed for level
+        self.baseObstacleSpeed = self.obstacleMinSpeed
         
         super.init(size: size)
     }
@@ -74,7 +74,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fatalError("init(coder:) is not supported")
     }
     
-    // MARK: - Жизненный цикл сцены
+    // MARK: - Scene lifecycle
     override func didMove(to view: SKView) {
         physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         physicsWorld.contactDelegate = self
@@ -85,29 +85,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         startGame()
     }
     
-    // MARK: - Настройка игры
+    // MARK: - Game setup
     private func setupBackground() {
-        // Получаем текстуру фона
         let backgroundTexture = SKTexture(imageNamed: getBackgroundImageName())
         
-        // Создаем два одинаковых фоновых изображения для бесконечного скроллинга
+        // Create two identical background images for infinite scrolling
         backgroundA = SKSpriteNode(texture: backgroundTexture)
         backgroundB = SKSpriteNode(texture: backgroundTexture)
         
-        // Настройка первого фона
+        // Setup first background
         backgroundA.anchorPoint = CGPoint.zero
         let aspectRatio = backgroundA.size.width / backgroundA.size.height
         backgroundA.size = CGSize(width: self.size.height * aspectRatio, height: self.size.height)
         backgroundA.position = CGPoint(x: 0, y: 0)
         backgroundA.zPosition = -1
         
-        // Настройка второго фона (сразу за первым)
+        // Setup second background (right after first)
         backgroundB.anchorPoint = CGPoint.zero
         backgroundB.size = backgroundA.size
         backgroundB.position = CGPoint(x: backgroundA.size.width, y: 0)
         backgroundB.zPosition = -1
         
-        // Добавляем фоны на сцену
+        // Add backgrounds to scene
         addChild(backgroundA)
         addChild(backgroundB)
     }
@@ -149,7 +148,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(border)
     }
     
-    // MARK: - Публичные методы для управления текстурой
+    // MARK: - Public methods for texture management
     
     func updateFishTexture(_ newSkinId: String) {
         guard fish != nil else { return }
@@ -157,7 +156,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         currentSkinId = newSkinId
         let newTexture = SKTexture(imageNamed: newSkinId)
         
-        // Обновляем текстуру с анимацией
+        // Update texture with animation
         let fadeOut = SKAction.fadeAlpha(to: 0.3, duration: 0.2)
         let changeTexture = SKAction.run {
             self.fish.texture = newTexture
@@ -167,12 +166,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let sequenceAction = SKAction.sequence([fadeOut, changeTexture, fadeIn])
         fish.run(sequenceAction)
         
-        // Добавляем визуальный эффект мутации
+        // Add visual mutation effect
         addMutationEffect()
     }
     
     private func addMutationEffect() {
-        // Создаем эффект мутации - свечение и частицы
+        // Create mutation effect - glow and particles
         let glowEffect = SKAction.sequence([
             SKAction.run {
                 self.fish.run(SKAction.scale(to: 1.2, duration: 0.3))
@@ -183,7 +182,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         ])
         
-        // Эффект свечения
+        // Glow effect
         let originalColor = fish.color
         let glowColor = SKAction.sequence([
             SKAction.colorize(with: .cyan, colorBlendFactor: 0.5, duration: 0.2),
@@ -192,12 +191,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         fish.run(SKAction.group([glowEffect, glowColor]))
         
-        // Добавляем эффект частиц
+        // Add particle effects
         createMutationParticles()
     }
     
     private func createMutationParticles() {
-        // Создаем простые частицы вокруг персонажа
+        // Create simple particles around character
         for i in 0..<8 {
             let particle = SKSpriteNode(imageNamed: "coin")
             particle.size = CGSize(width: 15, height: 15)
@@ -213,7 +212,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             addChild(particle)
             
-            // Анимация частиц
+            // Particle animation
             let moveOut = SKAction.move(by: CGVector(dx: cos(angle) * 30, dy: sin(angle) * 30), duration: 0.5)
             let fadeOut = SKAction.fadeOut(withDuration: 0.5)
             let scale = SKAction.scale(to: 0.3, duration: 0.5)
@@ -228,12 +227,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    // MARK: - Управление игрой
+    // MARK: - Game control
     func startGame() {
         isGamePaused = false
         lastUpdateTime = 0
         lastObstacleSpawnTime = 0
-        lastCoinSpawnTime = 0
+        lastParticleSpawnTime = 0
     }
     
     func pauseGame() {
@@ -242,34 +241,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func resumeGame() {
-        // Проверяем, активна ли пауза перед её снятием
         if isGamePaused {
             isGamePaused = false
-            // Сбрасываем счётчик времени для корректного обновления
             lastUpdateTime = CACurrentMediaTime()
-            // Снимаем паузу с SpriteKit-сцены
             self.isPaused = false
         }
     }
     
     func resetGame() {
-        // Удаляем все препятствия и монеты
+        // Remove all obstacles and particles
         for obstacle in obstacles {
             obstacle.removeFromParent()
         }
         obstacles.removeAll()
         
-        for coin in coins {
-            coin.removeFromParent()
+        for particle in particles {
+            particle.removeFromParent()
         }
-        coins.removeAll()
+        particles.removeAll()
         
-        // Возвращаем шарик в начальную позицию
+        // Return fish to initial position
         let fishX = size.width * GameConstants.fishHorizontalPosition
         let fishY = size.height * GameConstants.fishInitialY
         fish.position = CGPoint(x: fishX, y: fishY)
         
-        // Сбрасываем текстуру к базовой
+        // Reset texture to default
         currentSkinId = "skin_default"
         let defaultTexture = SKTexture(imageNamed: "skin_default")
         fish.texture = defaultTexture
@@ -278,33 +274,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fish.color = .white
         fish.colorBlendFactor = 0.0
         
-        // Сбрасываем скорость
-        baseSpeed = obstacleMinSpeed
+        // Reset speed
+        baseObstacleSpeed = obstacleMinSpeed
         
-        // Запускаем игру заново - делаем паузу в любом случае,
-        // чтобы GameViewModel мог явно управлять запуском
+        // Restart game with pause
         isGamePaused = true
         self.isPaused = true
         
-        // Сбрасываем таймеры
+        // Reset timers
         lastUpdateTime = 0
         lastObstacleSpawnTime = 0
-        lastCoinSpawnTime = 0
+        lastParticleSpawnTime = 0
     }
     
     func makeFishFlicker() {
-        // Останавливаем предыдущую анимацию мигания, если она была
         fish.removeAction(forKey: "flickerAction")
         
-        // Создаем последовательность действий для мигания
         let fadeOut = SKAction.fadeAlpha(to: 0.1, duration: 0.2)
         let fadeIn = SKAction.fadeAlpha(to: 1.0, duration: 0.2)
         let flickerSequence = SKAction.sequence([fadeOut, fadeIn])
         
-        // Повторяем мигание
         flickerRepeatAction = SKAction.repeat(flickerSequence, count: GameConstants.fishFlickerCount)
         
-        // Запускаем анимацию мигания
         fish.run(flickerRepeatAction!, withKey: "flickerAction")
     }
     
@@ -313,14 +304,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         fish.alpha = 1.0
     }
     
-    // MARK: - Игровой цикл
+    // MARK: - Game loop
     override func update(_ currentTime: TimeInterval) {
-        // Инициализация lastUpdateTime при первом вызове
         if lastUpdateTime == 0 {
             lastUpdateTime = currentTime
         }
         
-        // Расчет времени, прошедшего с последнего обновления
         let dt = currentTime - lastUpdateTime
         lastUpdateTime = currentTime
         
@@ -328,136 +317,118 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
         
-        // Обновление фона (бесконечный скроллинг)
+        // Update background (infinite scrolling)
         updateBackground(with: dt)
         
-        // Обновление препятствий и монет
+        // Update obstacles and particles
         updateObstacles(with: dt)
-        updateCoins(with: dt)
+        updateParticles(with: dt)
         
-        // Спавн новых объектов
+        // Spawn new objects
         spawnObjectsIfNeeded(at: currentTime)
         
-        // Удаление объектов, вышедших за границы экрана
+        // Remove objects that left screen
         cleanupObjects()
     }
     
     private func updateBackground(with dt: TimeInterval) {
-        // Рассчитываем скорость движения фона
         let speed = GameConstants.backgroundMovePointsPerSec
         
-        // Смещаем оба фона
         backgroundA.position.x -= speed * CGFloat(dt)
         backgroundB.position.x -= speed * CGFloat(dt)
         
-        // Проверяем, если фон A полностью ушел за экран, перемещаем его сразу за фоном B
         if backgroundA.position.x <= -backgroundA.size.width {
             backgroundA.position.x = backgroundB.position.x + backgroundB.size.width
         }
         
-        // Проверяем, если фон B полностью ушел за экран, перемещаем его сразу за фоном A
         if backgroundB.position.x <= -backgroundB.size.width {
             backgroundB.position.x = backgroundA.position.x + backgroundA.size.width
         }
     }
     
     private func updateObstacles(with dt: TimeInterval) {
-        // Рассчитываем текущую скорость препятствий
-        let currentSpeed = baseSpeed
+        let currentSpeed = baseObstacleSpeed
         
-        // Обновляем позиции всех препятствий
         for obstacle in obstacles {
             obstacle.position.x -= currentSpeed * CGFloat(dt)
         }
     }
     
-    private func updateCoins(with dt: TimeInterval) {
-        // Обновляем позиции всех монет
-        let currentSpeed = baseSpeed
+    private func updateParticles(with dt: TimeInterval) {
+        let particleSpeed = GameConstants.particleSpeed
         
-        for coin in coins {
-            coin.position.x -= currentSpeed * CGFloat(dt)
+        for particle in particles {
+            particle.position.x -= particleSpeed * CGFloat(dt)
         }
     }
     
     private func spawnObjectsIfNeeded(at currentTime: TimeInterval) {
-        // Спавн препятствий с интервалом, зависящим от уровня
+        // Spawn obstacles
         if currentTime - lastObstacleSpawnTime > obstacleSpawnInterval {
             spawnObstacle()
             lastObstacleSpawnTime = currentTime
-            
-            // Случайный спавн монет
-            if Double.random(in: 0...1) < GameConstants.coinSpawnChance {
-                spawnCoin()
-                lastCoinSpawnTime = currentTime
+        }
+        
+        // Spawn particles independently
+        if currentTime - lastParticleSpawnTime > GameConstants.particleSpawnInterval {
+            if Double.random(in: 0...1) < GameConstants.particleSpawnChance {
+                spawnParticle()
             }
+            lastParticleSpawnTime = currentTime
         }
     }
     
     private func spawnObstacle() {
-        // Выбираем тип препятствия
         let obstacleType = ObstacleType.shadow
         
-        // Создаем препятствие
         let texture = SKTexture(imageNamed: obstacleType.imageName)
         let obstacle = SKSpriteNode(texture: texture)
         
         obstacle.size = GameConstants.ObstacleSizes.shadow
         
-        // Случайная позиция по вертикали с отступами
-        let minY = obstacle.size.height / 2 + 20 // Отступ снизу 20 пунктов
-        let maxY = size.height - obstacle.size.height / 2 - 40 // Отступ сверху 40 пунктов
+        let minY = obstacle.size.height / 2 + 20
+        let maxY = size.height - obstacle.size.height / 2 - 40
         let randomY = CGFloat.random(in: minY...maxY)
         
-        // Устанавливаем позицию препятствия за правым краем экрана
         obstacle.position = CGPoint(x: size.width + obstacle.size.width/2, y: randomY)
         obstacle.zPosition = 3
         
-        // Настройка физического тела
         obstacle.physicsBody = SKPhysicsBody(rectangleOf: obstacle.size)
         obstacle.physicsBody?.isDynamic = true
         obstacle.physicsBody?.categoryBitMask = PhysicsCategory.shadow
         obstacle.physicsBody?.contactTestBitMask = PhysicsCategory.fish
         obstacle.physicsBody?.collisionBitMask = PhysicsCategory.none
         
-        // Добавляем препятствие на сцену и в массив
         addChild(obstacle)
         obstacles.append(obstacle)
     }
     
-    private func spawnCoin() {
-        // Создаем монету
-        let coin = SKSpriteNode(imageNamed: "coin")
-        coin.size = GameConstants.coinSize
+    private func spawnParticle() {
+        let particle = SKSpriteNode(imageNamed: "coin")
+        particle.size = GameConstants.coinSize
         
-        // Случайная позиция по вертикали, избегая крайних позиций
-        let minY = coin.size.height * 2
-        let maxY = size.height - coin.size.height * 2
+        let minY = particle.size.height * 2
+        let maxY = size.height - particle.size.height * 2
         let randomY = CGFloat.random(in: minY...maxY)
         
-        // Устанавливаем позицию за правым краем экрана
-        coin.position = CGPoint(x: size.width + coin.size.width/2, y: randomY)
-        coin.zPosition = 2
+        particle.position = CGPoint(x: size.width + particle.size.width/2, y: randomY)
+        particle.zPosition = 2
         
-        // Настройка физического тела
-        coin.physicsBody = SKPhysicsBody(circleOfRadius: coin.size.width/2)
-        coin.physicsBody?.isDynamic = true
-        coin.physicsBody?.categoryBitMask = PhysicsCategory.coin
-        coin.physicsBody?.contactTestBitMask = PhysicsCategory.fish
-        coin.physicsBody?.collisionBitMask = PhysicsCategory.none
+        particle.physicsBody = SKPhysicsBody(circleOfRadius: particle.size.width/2)
+        particle.physicsBody?.isDynamic = true
+        particle.physicsBody?.categoryBitMask = PhysicsCategory.coin
+        particle.physicsBody?.contactTestBitMask = PhysicsCategory.fish
+        particle.physicsBody?.collisionBitMask = PhysicsCategory.none
         
-        // Добавляем монету на сцену и в массив
-        addChild(coin)
-        coins.append(coin)
+        addChild(particle)
+        particles.append(particle)
         
-        // Добавляем анимацию вращения
         let rotateAction = SKAction.rotate(byAngle: CGFloat.pi * 2, duration: GameConstants.coinRotationDuration)
         let rotateForever = SKAction.repeatForever(rotateAction)
-        coin.run(rotateForever)
+        particle.run(rotateForever)
     }
     
     private func cleanupObjects() {
-        // Удаляем препятствия, вышедшие за левый край экрана
         obstacles = obstacles.filter { obstacle in
             if obstacle.position.x < -obstacle.size.width {
                 obstacle.removeFromParent()
@@ -466,30 +437,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return true
         }
         
-        // Удаляем монеты, вышедшие за левый край экрана
-        coins = coins.filter { coin in
-            if coin.position.x < -coin.size.width {
-                coin.removeFromParent()
+        particles = particles.filter { particle in
+            if particle.position.x < -particle.size.width {
+                particle.removeFromParent()
                 return false
             }
             return true
         }
     }
     
-    // MARK: - Коллизии
+    // MARK: - Collisions
     func didBegin(_ contact: SKPhysicsContact) {
         let collision = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
         
-        // Столкновение шарика с препятствием
         if collision == PhysicsCategory.fish | PhysicsCategory.shadow {
             handleCollisionWithObstacle()
         }
         
-        // Столкновение шарика с монетой
         if collision == PhysicsCategory.fish | PhysicsCategory.coin {
-            if let coin = contact.bodyA.categoryBitMask == PhysicsCategory.coin ?
+            if let particle = contact.bodyA.categoryBitMask == PhysicsCategory.coin ?
                 contact.bodyA.node as? SKSpriteNode : contact.bodyB.node as? SKSpriteNode {
-                handleCollectionOfCoin(coin)
+                handleCollectionOfParticle(particle)
             }
         }
     }
@@ -498,29 +466,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         gameDelegate?.didCollideWithObstacle()
     }
     
-    private func handleCollectionOfCoin(_ coin: SKSpriteNode) {
-        coin.removeFromParent()
-        if let index = coins.firstIndex(of: coin) {
-            coins.remove(at: index)
+    private func handleCollectionOfParticle(_ particle: SKSpriteNode) {
+        particle.removeFromParent()
+        if let index = particles.firstIndex(of: particle) {
+            particles.remove(at: index)
         }
         
         gameDelegate?.didCollectCoin()
     }
     
-    // MARK: - Обработка касаний
+    // MARK: - Touch handling
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let touchLocation = touch.location(in: self)
         
-        // Получаем новую Y-позицию для орла
         let newY = touchLocation.y
         
-        // Проверяем, чтобы шарик не вышел за пределы экрана
         let minY = fish.size.height / 2
         let maxY = size.height - fish.size.height / 2
         let clampedY = max(minY, min(maxY, newY))
         
-        // Перемещаем шарик с анимацией
         let moveAction = SKAction.moveTo(y: clampedY, duration: GameConstants.defaultAnimationDuration)
         moveAction.timingMode = .easeOut
         fish.run(moveAction)
@@ -530,24 +495,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let touch = touches.first else { return }
         let touchLocation = touch.location(in: self)
         
-        // Получаем новую Y-позицию для орла
         let newY = touchLocation.y
         
-        // Проверяем, чтобы шарик не вышел за пределы экрана
         let minY = fish.size.height / 2
         let maxY = size.height - fish.size.height / 2
         let clampedY = max(minY, min(maxY, newY))
         
-        // Перемещаем шарик мгновенно
         fish.position.y = clampedY
     }
     
-    // MARK: - Утилиты
+    // MARK: - Utilities
     private func getBackgroundImageName() -> String {
-        // Получаем имя фонового изображения в зависимости от выбранного фона
         if let item = BackgroundItem.availableBackgrounds.first(where: { $0.id == backgroundId }) {
             return item.imageName
         }
-        return "bg1" // Дефолтный фон
+        return "bg1"
     }
 }
