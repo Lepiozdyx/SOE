@@ -61,7 +61,7 @@ struct TournamentOverlayView: View {
             }
             .padding(30)
             .background(
-                Image(.mainFrame)
+                Image(.frameBubble)
                     .resizable()
             )
             .scaleEffect(overlayScale)

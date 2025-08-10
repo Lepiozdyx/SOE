@@ -189,29 +189,6 @@ class GameViewModel: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             
-//            if self.isTournamentMode {
-//                // В турнирном режиме всегда показываем турнирный оверлей
-//                self.showTournamentOverlay = true
-//                self.appViewModel?.checkAchievements(gameViewModel: self)
-//                // Не нужно вызывать showVictory/showDefeat, так как монеты уже начислены
-//            } else {
-//                // В обычном режиме показываем стандартные оверлеи
-//                if win {
-//                    self.showVictoryOverlay = true
-//                    if !self.hasCollided {
-//                        self.consecutiveNoCollisionLevels += 1
-//                    } else {
-//                        self.consecutiveNoCollisionLevels = 0
-//                    }
-//                    self.appViewModel?.checkAchievements(gameViewModel: self)
-//                    self.appViewModel?.showVictory()
-//                } else {
-//                    self.showDefeatOverlay = true
-//                    self.consecutiveNoCollisionLevels = 0
-//                    self.appViewModel?.showDefeat()
-//                }
-//            }
-            
             // В обычном режиме показываем стандартные оверлеи
             if win {
                 self.showVictoryOverlay = true
