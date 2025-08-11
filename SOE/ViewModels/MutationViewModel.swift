@@ -84,6 +84,9 @@ class MutationViewModel: ObservableObject {
         // Update the fish texture in the game scene
         gameViewModel?.updateFishTexture(mutation.type.textureName)
         
+        // Track mutation for achievements
+        trackMutationForAchievements()
+        
         // Check for victory
         if mutationState.hasWon {
             closeMutationOverlay()
@@ -135,6 +138,28 @@ class MutationViewModel: ObservableObject {
         
         // Fallback to default skin texture name
         return "skin_default"
+    }
+    
+    private func trackMutationForAchievements() {
+        guard let appViewModel = appViewModel else { return }
+        
+        // Increment mutation count in GameState
+        appViewModel.gameState.incrementMutationCount()
+        appViewModel.saveGameState()
+        
+        // Create or get AchievementViewModel and check for mutation achievements
+        if appViewModel.achievementViewModel == nil {
+            appViewModel.achievementViewModel = AchievementViewModel()
+            appViewModel.achievementViewModel?.appViewModel = appViewModel
+        }
+        
+        // Check specifically for mutation-related achievements
+        appViewModel.achievementViewModel?.checkMutationAchievements()
+        
+        // Also run a general achievement check in case there are other conditions
+        if let gameVM = gameViewModel {
+            appViewModel.checkAchievements(gameViewModel: gameVM)
+        }
     }
     
     private func closeMutationOverlay() {

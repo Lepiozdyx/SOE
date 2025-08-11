@@ -19,10 +19,16 @@ struct GameState: Codable {
     var coinsCollected: Int = 0
     var perfectLevels: Int = 0
     
+    var totalMutationsPerformed: Int = 0
+    
     var lastDailyRewardClaimDate: Date?
     
     var maxAvailableLevel: Int {
         return min(maxCompletedLevel + 1, 10)
+    }
+    
+    mutating func incrementMutationCount() {
+        totalMutationsPerformed += 1
     }
 }
 

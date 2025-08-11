@@ -49,6 +49,10 @@ class AchievementViewModel: ObservableObject {
         guard let appViewModel = appViewModel else { return }
         let gameState = appViewModel.gameState
         
+        if gameState.totalMutationsPerformed >= 1 {
+            unlockAchievement("first_step")
+        }
+        
         if gameState.levelsCompleted > 0 {
             unlockAchievement("first_step")
         }
@@ -70,6 +74,19 @@ class AchievementViewModel: ObservableObject {
         self.gameState = appViewModel.gameState
     }
     
+    func checkMutationAchievements() {
+        guard let appViewModel = appViewModel else { return }
+        let gameState = appViewModel.gameState
+        
+        // Check first mutation achievement
+        if gameState.totalMutationsPerformed >= 1 {
+            unlockAchievement("first_step")
+        }
+        
+        appViewModel.saveGameState()
+        self.gameState = appViewModel.gameState
+    }
+    
     func unlockAchievement(_ id: String) {
         guard let appViewModel = appViewModel,
               !appViewModel.gameState.completedAchievements.contains(id) else { return }
@@ -77,5 +94,10 @@ class AchievementViewModel: ObservableObject {
         appViewModel.gameState.completedAchievements.append(id)
         self.gameState = appViewModel.gameState
         appViewModel.saveGameState()
+        
+        // Trigger UI update
+        DispatchQueue.main.async {
+            self.objectWillChange.send()
+        }
     }
 }

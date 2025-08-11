@@ -23,8 +23,8 @@ struct BackgroundItem: Identifiable, Codable, Equatable {
     static let availableBackgrounds: [BackgroundItem] = [
         BackgroundItem(id: "bg1", imageName: "bg1", price: 0),
         BackgroundItem(id: "bg2", imageName: "bg2", price: 100),
-        BackgroundItem(id: "bg3", imageName: "bg3", price: 200),
-        BackgroundItem(id: "bg4", imageName: "bg4", price: 300)
+        BackgroundItem(id: "bg3", imageName: "bg3", price: 100),
+        BackgroundItem(id: "bg4", imageName: "bg4", price: 100)
     ]
     
     static func getBackground(id: String) -> BackgroundItem {
@@ -44,8 +44,8 @@ struct FishSkinItem: Identifiable, Codable, Equatable {
     static let availableSkins: [FishSkinItem] = [
         FishSkinItem(id: "default", imageName: "skin_default", price: 0),
         FishSkinItem(id: "skin2", imageName: "skin2", price: 100),
-        FishSkinItem(id: "skin3", imageName: "skin3", price: 200),
-        FishSkinItem(id: "skin4", imageName: "skin4", price: 300)
+        FishSkinItem(id: "skin3", imageName: "skin3", price: 100),
+        FishSkinItem(id: "skin4", imageName: "skin4", price: 100)
     ]
     
     static func getSkin(id: String) -> FishSkinItem {
