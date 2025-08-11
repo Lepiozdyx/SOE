@@ -43,7 +43,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Parameters for view model synchronization
     private let backgroundId: String
     private var currentSkinId: String
-    private let baseSkinId: String // Store the selected shop skin
+    private let baseSkinId: String // Store the selected shop skin ID
     private var isGamePaused: Bool = false
     
     // Current game level
@@ -58,7 +58,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     init(size: CGSize, backgroundId: String, skinId: String, level: Int) {
         self.backgroundId = backgroundId
         self.currentSkinId = skinId
-        self.baseSkinId = skinId // Store the base skin selected in shop
+        self.baseSkinId = skinId // Store the base skin ID selected in shop
         self.level = level
         
         // Use level-based settings
@@ -114,8 +114,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     private func setupFish() {
-        // Use the base skin selected in shop
-        let fishTexture = SKTexture(imageNamed: baseSkinId)
+        // Convert skin ID to image name
+        let fishImageName = getSkinImageName(for: baseSkinId)
+        let fishTexture = SKTexture(imageNamed: fishImageName)
         fish = SKSpriteNode(texture: fishTexture)
         
         fish.size = GameConstants.fishSize
@@ -151,13 +152,37 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(border)
     }
     
+    // MARK: - Helper methods for skin management
+    
+    private func getSkinImageName(for skinId: String) -> String {
+        // Convert skin ID to image name using FishSkinItem data
+        if let skin = FishSkinItem.availableSkins.first(where: { $0.id == skinId }) {
+            return skin.imageName
+        }
+        
+        // Fallback to default skin image
+        return "skin_default"
+    }
+    
     // MARK: - Public methods for texture management
     
     func updateFishTexture(_ newSkinId: String) {
         guard fish != nil else { return }
         
         currentSkinId = newSkinId
-        let newTexture = SKTexture(imageNamed: newSkinId)
+        
+        // For mutations, newSkinId is already the texture name
+        // For shop skins, we need to convert ID to image name
+        let imageName: String
+        if newSkinId.hasPrefix("skin_") {
+            // This is already a texture name from mutation
+            imageName = newSkinId
+        } else {
+            // This is a skin ID from shop, convert to image name
+            imageName = getSkinImageName(for: newSkinId)
+        }
+        
+        let newTexture = SKTexture(imageNamed: imageName)
         
         // Update texture with animation
         let fadeOut = SKAction.fadeAlpha(to: 0.3, duration: 0.2)
@@ -268,9 +293,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let fishY = size.height * GameConstants.fishInitialY
         fish.position = CGPoint(x: fishX, y: fishY)
         
-        // Reset texture to base skin selected in shop (not hardcoded default)
+        // Reset texture to base skin selected in shop
         currentSkinId = baseSkinId
-        let baseTexture = SKTexture(imageNamed: baseSkinId)
+        let baseSkinImageName = getSkinImageName(for: baseSkinId)
+        let baseTexture = SKTexture(imageNamed: baseSkinImageName)
         fish.texture = baseTexture
         fish.alpha = 1.0
         fish.setScale(1.0)

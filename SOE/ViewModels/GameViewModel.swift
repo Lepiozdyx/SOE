@@ -38,7 +38,7 @@ class GameViewModel: ObservableObject {
         }
         
         let backgroundId = appViewModel?.gameState.currentBackgroundId ?? "bg1"
-        let skinId = mutationViewModel?.getCurrentSkinTexture() ?? "skin_default"
+        let skinId = mutationViewModel?.getCurrentSkinTexture() ?? "default"
         
         let scene = GameScene(
             size: size,

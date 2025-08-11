@@ -78,7 +78,29 @@ struct GameView: View {
             }
         }
         .onAppear {
+            setupGameViewModel()
             setupMutationViewModel()
+        }
+    }
+    
+    private func setupGameViewModel() {
+        // Create GameViewModel if it doesn't exist
+        if appViewModel.gameViewModel == nil {
+            DispatchQueue.main.async {
+                appViewModel.gameViewModel = GameViewModel()
+                
+                // Setup connections after GameViewModel is created
+                if let gameVM = appViewModel.gameViewModel {
+                    gameVM.appViewModel = appViewModel
+                    gameVM.mutationViewModel = mutationViewModel
+                    mutationViewModel.gameViewModel = gameVM
+                }
+            }
+        } else {
+            // Update connections if GameViewModel already exists
+            appViewModel.gameViewModel?.appViewModel = appViewModel
+            appViewModel.gameViewModel?.mutationViewModel = mutationViewModel
+            mutationViewModel.gameViewModel = appViewModel.gameViewModel
         }
     }
     
@@ -107,24 +129,24 @@ struct SpriteKitGameView: UIViewRepresentable {
     }
     
     func updateUIView(_ view: SKView, context: Context) {
-        // Ensure GameViewModel exists and is properly connected
-        if appViewModel.gameViewModel == nil {
-            appViewModel.gameViewModel = GameViewModel()
+        // Only setup scene if GameViewModel exists and scene hasn't been created yet
+        guard let gameViewModel = appViewModel.gameViewModel,
+              view.scene == nil else {
+            return
         }
         
-        // Setup connections
-        appViewModel.gameViewModel?.appViewModel = appViewModel
-        appViewModel.gameViewModel?.mutationViewModel = mutationViewModel
-        mutationViewModel.gameViewModel = appViewModel.gameViewModel
+        // Ensure connections are properly set up
+        gameViewModel.appViewModel = appViewModel
+        gameViewModel.mutationViewModel = mutationViewModel
+        mutationViewModel.gameViewModel = gameViewModel
         mutationViewModel.appViewModel = appViewModel
         
-        if view.scene == nil {
-            let scene = appViewModel.gameViewModel?.setupScene(size: size)
-            view.presentScene(scene)
-            
-            // Immediately pause the game until pre-game overlay is dismissed
-            appViewModel.gameViewModel?.togglePause(true)
-        }
+        // Create and present the scene
+        let scene = gameViewModel.setupScene(size: size)
+        view.presentScene(scene)
+        
+        // Immediately pause the game until pre-game overlay is dismissed
+        gameViewModel.togglePause(true)
     }
 }
 
