@@ -39,7 +39,7 @@ struct ShopView: View {
                 Image(.frameShop)
                     .resizable()
                     .scaledToFit()
-                    .frame(maxHeight: 300)
+                    .frame(maxHeight: 270)
                     .overlay {
                         // Shop items grid
                         LazyVGrid(columns: columns, spacing: 10) {
@@ -81,7 +81,7 @@ struct ShopView: View {
                                 }
                             }
                         }
-                        .frame(maxWidth: 250)
+                        .frame(maxWidth: 200)
                         .opacity(contentOpacity)
                         .offset(y: contentOffset)
                         .padding(.top)
@@ -150,7 +150,7 @@ struct TabButton: View {
         Button(action: action) {
             Image(.btnAction)
                 .resizable()
-                .frame(width: 130, height: 50)
+                .frame(width: 90, height: 50)
                 .overlay(
                     Text(title)
                         .gFont(16)
@@ -185,7 +185,7 @@ struct ShopItemView: View {
             Image(getPreviewImageName())
                 .resizable()
                 .scaledToFit()
-                .frame(maxHeight: 60)
+                .frame(maxHeight: 50)
             
             // Buy/select button
             Button {
@@ -209,7 +209,7 @@ struct ShopItemView: View {
                     Image(.btnBy)
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 35)
+                        .frame(height: 32)
                 }
             }
             .disabled((isPurchased && isSelected) || (!isPurchased && !canAfford))

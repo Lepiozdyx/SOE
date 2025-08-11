@@ -10,8 +10,6 @@ struct SettingsView: View {
     @State private var settingsOpacity: Double = 0
     @State private var settingsOffset: CGFloat = 20
     
-    @State private var showingAlert = false
-    
     var body: some View {
         ZStack {
             // Background
@@ -24,23 +22,6 @@ struct SettingsView: View {
                     }
                     
                     Spacer()
-                    
-                    #warning("Delete after all")
-                    // Reset progress button
-                    Button {
-                        showingAlert.toggle()
-                    } label: {
-                        VStack {
-                            Image(systemName: "exclamationmark.octagon.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 25)
-                                .foregroundStyle(.red)
-                            
-                            Text("Reset")
-                                .gFont(10)
-                        }
-                    }
                 }
                 
                 Spacer()
@@ -107,12 +88,6 @@ struct SettingsView: View {
                 settingsOpacity = 1.0
                 settingsOffset = 0
             }
-        }
-        .confirmationDialog("This action will reset all progress!", isPresented: $showingAlert, titleVisibility: .visible) {
-            Button("Yes. Reset!", role: .destructive) {
-                appViewModel.resetAllProgress()
-            }
-            Button("Cancel", role: .cancel) { }
         }
     }
 }
