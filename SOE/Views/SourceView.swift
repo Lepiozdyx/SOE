@@ -11,17 +11,14 @@ struct SourceView: View {
             case .support:
                 if let url = state.webManager.targetURL {
                     WebViewManager(url: url, webManager: state.webManager)
-                        .onAppear {
-                            OrientationManager.shared.unlockOrientation()
-                        }
+
                 } else {
                     WebViewManager(url: NetworkManager.initialURL, webManager: state.webManager)
-                        .onAppear {
-                            OrientationManager.shared.unlockOrientation()
-                        }
+
                 }
             case .game:
                 ContentView()
+                    .preferredColorScheme(.light)
             }
         }
         .onAppear {

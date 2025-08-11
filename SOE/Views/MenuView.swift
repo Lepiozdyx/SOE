@@ -51,7 +51,7 @@ struct MenuView: View {
             .padding()
             
             // Main buttons
-            HStack(spacing: 30) {
+            HStack(spacing: 20) {
                 // Shop
                 Button {
                     appViewModel.navigateTo(.shop)
