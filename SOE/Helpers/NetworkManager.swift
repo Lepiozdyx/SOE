@@ -6,7 +6,7 @@ class NetworkManager: ObservableObject {
     
     @Published private(set) var targetURL: URL?
     
-    static let initialURL = URL(string: "https://")!
+    static let initialURL = URL(string: "https://spasszone.top/get")!
     private let storage: UserDefaults
     private var didSaveURL = false
     private let requestTimeout: TimeInterval = 10.0
